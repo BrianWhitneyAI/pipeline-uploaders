@@ -1,6 +1,6 @@
 from aicsfiles import FileManagementSystem
 
-class celigo_uploader:
+class CeligoUploader:
 
     def __init__(self, file_type, path):
         self.path = path
