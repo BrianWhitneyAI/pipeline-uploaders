@@ -1,6 +1,6 @@
 from aicsfiles import FileManagementSystem
 
-from FMSUploader import FMSUploader
+from fms_uploader import FMSUploader
 from pathlib import Path
 
 

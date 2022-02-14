@@ -1,6 +1,6 @@
 from aicsfiles import FileManagementSystem
 
-from FMSUploader import FMSUploader
+from fms_uploader import FMSUploader
 from pathlib import Path
 
 
@@ -19,7 +19,7 @@ Starting code base for EMT Uploader
 
 
 '''
-class EMTUploader(FMSUploader):
+class TemplateUploader(FMSUploader):
 
     def __init__(self, file_path: str, env = 'stg'):
         self.file_path = Path(file_path)
