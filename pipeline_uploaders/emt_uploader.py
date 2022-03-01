@@ -24,6 +24,7 @@ class EMTUploader():
         self.env = env
         self.barcode  = int(dir_path.name[:9]) # this is oversimplified at moment 
         self.files = []
+        self.wells = []
 
         for dirpath, _, filenames in os.walk(dir_path):
             for filename in filenames:
@@ -44,13 +45,15 @@ class EMTUploader():
                                                                  magnification = 63,
                                                                  timepoint = timepoint))
                     elif '.czmbi' in filename:
+                        # Labkey Metadata
                         self.files.append(self.metadata_formatter(filename = file_path, file_type = 'czmbi'))
 
                 elif '.czexp' in filename:
+                    # Labkey Metadata
                     self.files.append(self.metadata_formatter(filename = file_path, file_type = 'czexp'))
 
-
-    def metadata_formatter(self, filename:str,file_type: str, well = NaN, magnification = NaN, timepoint = NaN):
+ # make static method 
+    def metadata_formatter(self, filename:str,file_type: str, well = self.well, magnification = NaN, timepoint = NaN):
 
         # this can change for however metadata is wanted to be formatted 
         metadata = {
