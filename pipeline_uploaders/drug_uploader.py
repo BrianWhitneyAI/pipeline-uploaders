@@ -1,10 +1,9 @@
-from aicsfiles import FileManagementSystem
-
-from fms_uploader import FMSUploader
 from pathlib import Path
 
+from aicsfiles import FileManagementSystem
+from fms_uploader import FMSUploader
 
-'''
+"""
 Starting code base for EMT Uploader 
 
     Goals: Upload EMT files to FMS 
@@ -18,16 +17,17 @@ Starting code base for EMT Uploader
         NOTE: look into helper constructor
 
 
-'''
-class DrugUploader(FMSUploader):
+"""
 
-    def __init__(self, file_path: str, env = 'stg'):
+
+class DrugUploader(FMSUploader):
+    def __init__(self, file_path: str, env="stg"):
         self.file_path = Path(file_path)
         self.env = env
-        if file_path.suffix in ['.tiff', '.czi']:
-            self.file_type = 'raw_image' # check what file types are in FMS
-        elif file_path.suffix in ['.csv','.text','.xlsx']:
-            self.file_type = 'data' # check what file types are in FMS 
+        if file_path.suffix in [".tiff", ".czi"]:
+            self.file_type = "raw_image"  # check what file types are in FMS
+        elif file_path.suffix in [".csv", ".text", ".xlsx"]:
+            self.file_type = "data"  # check what file types are in FMS
 
         # defining metadata potential helper
         self.metadata = {}

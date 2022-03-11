@@ -13,7 +13,7 @@ def get_module_version():
     return __version__
 
 
-from .example import Example  # noqa: F401
-from .fms_uploader import FMSUploader
 from .celigo_uploader import CeligoUploader
 from .drug_uploader import DrugUploader
+from .example import Example  # noqa: F401
+from .fms_uploader import FMSUploader
