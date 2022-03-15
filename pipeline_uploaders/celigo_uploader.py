@@ -1,4 +1,7 @@
+import lkaccess.contexts
+import requests
 from aicsfiles import FileManagementSystem
+from lkaccess import LabKey, QueryFilter
 
 
 class CeligoUploader:
@@ -9,7 +12,7 @@ class CeligoUploader:
 
         raw_metadata = file_name.split("_")
 
-        plate_barcode = raw_metadata[0]
+        self.plate_barcode = raw_metadata[0]
 
         ts = raw_metadata[2].split("-")
         scan_date = ts[0] + "-" + ts[1] + "-" + ts[2]
@@ -17,6 +20,28 @@ class CeligoUploader:
 
         row = raw_metadata[4][0]
         col = raw_metadata[4][1:]
+
+        lk = LabKey(server_context=lkaccess.contexts.PROD)
+
+        my_rows = lk.select_rows_as_list(
+            schema_name="microscopy",
+            query_name="Plate",
+            filter_array=[
+                QueryFilter("Barcode", plate_barcode),
+            ],
+        )
+
+        plate_ID = my_rows[0]["PlateId"]
+        r = requests.get(
+            f"http://aics.corp.alleninstitute.org/metadata-management-service/1.0/plate/{plate_ID}",
+            headers={"x-user-id": "brian.whitney"},
+        )
+        import json
+
+        with open("data_from_plate.json", "w") as f:
+            json.dump(r.json(), f)
+
+        self.json = "data_from_plate.json"
 
         self.metadata = {
             "microsocpy": {
