@@ -15,11 +15,11 @@ class CeligoUploader:
         self.plate_barcode = raw_metadata[0]
 
         ts = raw_metadata[2].split("-")
-        scan_date = ts[0] + "-" + ts[1] + "-" + ts[2]
-        scan_time = ts[4] + "-" + ts[5] + "-" + ts[6]
+        self.scan_date = ts[0] + "-" + ts[1] + "-" + ts[2]
+        self.scan_time = ts[4] + "-" + ts[5] + "-" + ts[6]
 
-        row = raw_metadata[4][0]
-        col = raw_metadata[4][1:]
+        self.row = raw_metadata[4][0]
+        self.col = raw_metadata[4][1:]
 
         lk = LabKey(server_context=lkaccess.contexts.PROD)
 
@@ -27,7 +27,7 @@ class CeligoUploader:
             schema_name="microscopy",
             query_name="Plate",
             filter_array=[
-                QueryFilter("Barcode", plate_barcode),
+                QueryFilter("Barcode", self.plate_barcode),
             ],
         )
 
@@ -45,12 +45,12 @@ class CeligoUploader:
 
         self.metadata = {
             "microsocpy": {
-                "plate_barcode": [plate_barcode],  # an existing fms file_id
+                "plate_barcode": [self.plate_barcode],  # an existing fms file_id
                 "celigo": {
-                    "scan_time": [scan_time],
-                    "scan_date": [scan_date],
-                    "row": [row],
-                    "coll": [col],
+                    "scan_time": [self.scan_time],
+                    "scan_date": [self.scan_date],
+                    "row": [self.row],
+                    "coll": [self.col],
                 },
             },
         }
