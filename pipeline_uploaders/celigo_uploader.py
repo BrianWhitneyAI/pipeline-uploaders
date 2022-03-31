@@ -1,13 +1,15 @@
-import lkaccess.contexts
-import requests
-from aicsfiles import FileManagementSystem
-from lkaccess import LabKey, QueryFilter
+from fms_uploader import FMSUploader
 
+class CeligoUploader(FMSUploader):
+    def __init__(self, file_type, img_path,):
 
-class CeligoUploader:
-    def __init__(self, file_type, path):
-        self.path = path
+        # Defines path to original image to be uploaded
+        self.img_path = img_path
+ 
+        # File type label for data that goes to FMS
         self.file_type = file_type
+
+        # Parsing name for metadata (lines 19 - 30)
         file_name = open(self.path).name.split("\\")[-1]
 
         raw_metadata = file_name.split("_")
@@ -21,40 +23,46 @@ class CeligoUploader:
         self.row = raw_metadata[4][0]
         self.col = raw_metadata[4][1:]
 
-        lk = LabKey(server_context=lkaccess.contexts.PROD)
+        # Establishing a connection to labkey=
+        r = self.get_labkey_metadata(self.plate_barcode)
 
-        my_rows = lk.select_rows_as_list(
-            schema_name="microscopy",
-            query_name="Plate",
-            filter_array=[
-                QueryFilter("Barcode", self.plate_barcode),
-            ],
-        )
+        self.metadata = {'microscopy' : 
+                        {
+                        "well_id": self.get_well_id(r.json(),self.row, self.col),
+                        "plate_barcode" : self.plate_barcode,
+                        "celigo" : {
+                            "scan_time" : self.scan_time,
+                            "scan_date" : self.scan_date,
+                                    }
+                         }
+                    }
 
-        plate_ID = my_rows[0]["PlateId"]
-        r = requests.get(
-            f"http://aics.corp.alleninstitute.org/metadata-management-service/1.0/plate/{plate_ID}",
-            headers={"x-user-id": "brian.whitney"},
-        )
-        import json
 
-        with open("data_from_plate.json", "w") as f:
-            json.dump(r.json(), f)
 
-        self.json = "data_from_plate.json"
 
-        self.metadata = {
-            "microsocpy": {
-                "plate_barcode": [self.plate_barcode],  # an existing fms file_id
-                "celigo": {
-                    "scan_time": [self.scan_time],
-                    "scan_date": [self.scan_date],
-                    "row": [self.row],
-                    "coll": [self.col],
-                },
-            },
-        }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
+    # upload method. Uploads file 
     def upload(self):
         fms = FileManagementSystem()
         while True:
@@ -69,3 +77,4 @@ class CeligoUploader:
                 print("File Not Uploaded")
             except BaseException:
                 print("File Not Uploaded")
+'''
