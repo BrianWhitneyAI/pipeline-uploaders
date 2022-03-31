@@ -1,6 +1,6 @@
+'''
 from pathlib import Path
 
-from aicsfiles import FileManagementSystem
 from fms_uploader import FMSUploader
 
 """
@@ -33,3 +33,4 @@ class DrugUploader(FMSUploader):
         self.metadata = {}
 
         super.__init__(self.file_path, self.file_type, self.metadata, self.env)
+'''

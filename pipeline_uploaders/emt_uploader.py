@@ -3,11 +3,9 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from xml.etree.ElementTree import tostring as xml_to_string
 
-import lkaccess.contexts
-import requests
 from aicsimageio import AICSImage
 from fms_uploader import FMSUploader
-from lkaccess import LabKey, QueryFilter
+
 
 """
 Starting code base for EMT Uploader 
@@ -161,28 +159,6 @@ class EMTUploader:
                 wells.append(Scene.find("Shape").get("Name"))
 
         return wells, scene_dict
-
-    @staticmethod
-    def get_labkey_metadata(barcode: str):
-        lk = LabKey(server_context=lkaccess.contexts.PROD)
-
-        my_rows = lk.select_rows_as_list(
-            schema_name="microscopy",
-            query_name="Plate",
-            filter_array=[
-                QueryFilter("Barcode", "5500000644"),
-            ],
-        )
-
-        plate_ID = my_rows[0]["PlateId"]
-        r = requests.get(
-            f"http://aics.corp.alleninstitute.org/metadata-management-service/1.0/plate/{plate_ID}",
-            headers={"x-user-id": "brian.whitney"},
-        )  # this should change to a generic user
-
-        return (
-            r.json()
-        )  # This can change to whatever metadata we want to pull out of labkey
 
     def upload(self):
         for file in self.files:

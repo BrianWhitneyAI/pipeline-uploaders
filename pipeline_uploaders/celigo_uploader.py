@@ -1,11 +1,16 @@
 from fms_uploader import FMSUploader
 
+
 class CeligoUploader(FMSUploader):
-    def __init__(self, file_type, img_path,):
+    def __init__(
+        self,
+        file_type: str,
+        file_path: str,
+    ):
 
         # Defines path to original image to be uploaded
-        self.img_path = img_path
- 
+        self.file_path = file_path
+
         # File type label for data that goes to FMS
         self.file_type = file_type
 
@@ -26,55 +31,13 @@ class CeligoUploader(FMSUploader):
         # Establishing a connection to labkey=
         r = self.get_labkey_metadata(self.plate_barcode)
 
-        self.metadata = {'microscopy' : 
-                        {
-                        "well_id": self.get_well_id(r.json(),self.row, self.col),
-                        "plate_barcode" : self.plate_barcode,
-                        "celigo" : {
-                            "scan_time" : self.scan_time,
-                            "scan_date" : self.scan_date,
-                                    }
-                         }
-                    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-'''
-    # upload method. Uploads file 
-    def upload(self):
-        fms = FileManagementSystem()
-        while True:
-            try:
-                fms.upload_file(
-                    self.path, file_type=self.file_type, metadata=self.metadata
-                )
-                break
-            except OSError:
-                print("File Not Uploaded")
-            except ValueError:
-                print("File Not Uploaded")
-            except BaseException:
-                print("File Not Uploaded")
-'''
+        self.metadata = {
+            "microscopy": {
+                "well_id": self.get_well_id(r.json(), self.row, self.col),
+                "plate_barcode": self.plate_barcode,
+                "celigo": {
+                    "scan_time": self.scan_time,
+                    "scan_date": self.scan_date,
+                },
+            }
+        }
