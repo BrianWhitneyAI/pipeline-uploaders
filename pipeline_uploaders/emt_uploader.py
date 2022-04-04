@@ -44,33 +44,32 @@ class EMTUploader:
             self.imaging_date = self.get_imaging_date(str(aqusition_block_1_paths[0]))
         else:
             raise Exception("Directory does not contain correct Aquisition Blocks")
-        
 
         """
         This code block is a series if logic statements
         to pick filetype and assign necessary metadata
         """
-        
+
         self.well_ids = []
         r = FMSUploader.get_labkey_metadata(self.barcode)
-        for row,col in zip(self.rows,self.cols):
-            self.well_ids.append(FMSUploader.get_well_id(r,row,col))
+        for row, col in zip(self.rows, self.cols):
+            self.well_ids.append(FMSUploader.get_well_id(r, row, col))
 
         for dirpath, _, filenames in os.walk(dir_path):
             for filename in filenames:
                 file_path = f"{dirpath}/{filename}"
                 if str(self.barcode) in filename:
                     if ".czi" in filename:
-                        # temp_img_date = self.get_imaging_date(dirpath / filename) # sets Imaging date to the one specified in the images metadata instead of the abstract one 
+                        # temp_img_date = self.get_imaging_date(dirpath / filename) # sets Imaging date to the one specified in the images metadata instead of the abstract one
                         if "10x" in filename:
                             self.files.append(
                                 self.metadata_formatter(
                                     barcode=self.barcode,
                                     filename=file_path,
-                                    file_type="czi", # needs to chage
-                                    imaging_date = self.imaging_date,
-                                    well_ids=self.well_ids,  
-                                    objective=10, 
+                                    file_type="czi",  # needs to chage
+                                    imaging_date=self.imaging_date,
+                                    well_ids=self.well_ids,
+                                    objective=10,
                                     env=self.env,
                                 )
                             )
@@ -83,8 +82,8 @@ class EMTUploader:
                                     barcode=self.barcode,
                                     filename=file_path,
                                     file_type="czi",
-                                    imaging_date = self.imaging_date,
-                                    well_ids =self.well_ids,
+                                    imaging_date=self.imaging_date,
+                                    well_ids=self.well_ids,
                                     objective=63,
                                     timepoint=timepoint,
                                     env=self.env,
@@ -98,8 +97,8 @@ class EMTUploader:
                                 barcode=self.barcode,
                                 filename=file_path,
                                 file_type="czmbi",
-                                imaging_date = self.imaging_date,
-                                well_ids =self.well_ids,
+                                imaging_date=self.imaging_date,
+                                well_ids=self.well_ids,
                                 env=self.env,
                             )
                         )
@@ -112,7 +111,7 @@ class EMTUploader:
                             barcode=self.barcode,
                             filename=file_path,
                             file_type="czexp",
-                            imaging_date = self.imaging_date,
+                            imaging_date=self.imaging_date,
                             well_ids=self.well_ids,
                             env=self.env,
                         )
@@ -137,8 +136,8 @@ class EMTUploader:
 
         metadata = {
             "microscopy": {
-                "well_ids" : [well_ids],
-                "imaging_date" : [imaging_date],
+                "well_ids": [well_ids],
+                "imaging_date": [imaging_date],
                 "objective": [objective],
                 "plate_barcode": [barcode],
                 "EMT": {
@@ -156,20 +155,20 @@ class EMTUploader:
         block_img = AICSImage(block_path)
 
         row_code = {
-                'A': 1,
-                'B': 2,
-                'C': 3,
-                'D': 4,
-                'E': 5,
-                'F': 6,
-                'G': 7,
-                'H': 8,
+            "A": 1,
+            "B": 2,
+            "C": 3,
+            "D": 4,
+            "E": 5,
+            "F": 6,
+            "G": 7,
+            "H": 8,
         }
 
         scene_dict = {}
         wells = []
         rows = []
-        cols =  []
+        cols = []
 
         with open("metadata.czi.xml", "w") as f:
             f.write(xml_to_string(block_img.metadata, encoding="unicode"))
@@ -198,8 +197,8 @@ class EMTUploader:
             f.write(xml_to_string(file_img.metadata, encoding="unicode"))
         tree = ET.parse("metadata.czi.xml")
 
-        imaging_date = tree.findall(".//AcquisitionDateAndTime")[0].text 
-        # Delete file 
+        imaging_date = tree.findall(".//AcquisitionDateAndTime")[0].text
+        # Delete file
         return imaging_date.split("T")[0]
 
     def upload(self):
