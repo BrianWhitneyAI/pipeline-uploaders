@@ -28,7 +28,7 @@ class EMTUploader:
 
         BLOCK = "AcquisitionBlock"
         self.env = env
-        self.barcode = str(Path(dir_path).name[:9])  # this is oversimplified at moment
+        self.barcode = str(Path(dir_path).name.split("_")[0])  # this is oversimplified at moment
         self.files = []  # This is where files + metadata go
 
         # Sets a Path to Aqusition Block 1 to extract metadata from the dir_path
