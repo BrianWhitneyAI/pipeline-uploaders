@@ -5,7 +5,7 @@ from pathlib import Path
 from xml.etree.ElementTree import tostring as xml_to_string
 
 from aicsimageio import AICSImage
-from fms_uploader import FMSUploader
+from .fms_uploader import FMSUploader
 
 
 """
