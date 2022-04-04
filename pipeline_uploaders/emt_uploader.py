@@ -36,18 +36,21 @@ class EMTUploader:
             path for path in Path(dir_path).resolve().rglob("*pt1.czi")
         ]
 
-        # Creates a List of all active wells and a Dictionary of Scene-Well relationship
+        # sets metadata (Wells,rows,cols,imaging_date) that is universal for use on untagged files (.czexp,.czmbi)
         if not aqusition_block_1_paths:
             self.wells, self.scene_dict, self.rows, self.cols = self.get_well_data(
                 str(aqusition_block_1_paths[0])
             )
+            self.imaging_date = self.get_imaging_date(str(aqusition_block_1_paths[0]))
         else:
             raise Exception("Directory does not contain correct Aquisition Blocks")
+        
 
         """
         This code block is a series if logic statements
         to pick filetype and assign necessary metadata
         """
+        
         self.well_ids = []
         r = FMSUploader.get_labkey_metadata(self.barcode)
         for row,col in zip(self.rows,self.cols):
@@ -58,17 +61,16 @@ class EMTUploader:
                 file_path = f"{dirpath}/{filename}"
                 if str(self.barcode) in filename:
                     if ".czi" in filename:
-                        imaging_date = get_imaging_date(file_path)
+                        # temp_img_date = self.get_imaging_date(dirpath / filename) # sets Imaging date to the one specified in the images metadata instead of the abstract one 
                         if "10x" in filename:
-
                             self.files.append(
                                 self.metadata_formatter(
                                     barcode=self.barcode,
                                     filename=file_path,
                                     file_type="czi", # needs to chage
                                     imaging_date = self.imaging_date,
-                                    well_ids=self.well_ids,  # Need standard way to get Well ID
-                                    objective=10, # objectiive
+                                    well_ids=self.well_ids,  
+                                    objective=10, 
                                     env=self.env,
                                 )
                             )
@@ -195,15 +197,10 @@ class EMTUploader:
         with open("metadata.czi.xml", "w") as f:
             f.write(xml_to_string(file_img.metadata, encoding="unicode"))
         tree = ET.parse("metadata.czi.xml")
-        root = tree.getroot()
 
-        return tree.findall(".//AcquisitionDateAndTime")[0].text 
-
-
-
-
-
-
+        imaging_date = tree.findall(".//AcquisitionDateAndTime")[0].text 
+        # Delete file 
+        return imaging_date.split("T")[0]
 
     def upload(self):
         for file in self.files:
