@@ -62,9 +62,9 @@ class FMSUploader:
         return r.json()
 
     @staticmethod
-    def get_well_id(f, row: int, col: int):  # TODO: Add typing to f
+    def get_well_id(metadata_block : dict, row: int, col: int):  # TODO: Add typing to f
 
-        wells = json.load(f)["wells"]
+        wells = metadata_block["wells"]
 
         for well in wells:
             if (well["row"] == row) and (well["col"] == col):

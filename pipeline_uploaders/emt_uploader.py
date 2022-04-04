@@ -60,6 +60,7 @@ class EMTUploader:
 
         self.well_ids = []
         r = FMSUploader.get_labkey_metadata(self.barcode)
+        print(r)
         for row, col in zip(self.rows, self.cols):
             self.well_ids.append(FMSUploader.get_well_id(r, row, col))
 
