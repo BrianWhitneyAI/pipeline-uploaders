@@ -38,10 +38,16 @@ class EMTUploader:
         print(aqusition_block_1_paths)
         # sets metadata (Wells,rows,cols,imaging_date) that is universal for use on untagged files (.czexp,.czmbi)
         if aqusition_block_1_paths:
+            block_1 = str(aqusition_block_1_paths[0])
+            
             self.wells, self.scene_dict, self.rows, self.cols = self.get_well_data(
-                str(aqusition_block_1_paths[0])
+                file_path = block_1
             )
-            self.imaging_date = self.get_imaging_date(str(aqusition_block_1_paths[0]))
+            # self.imaging_date = self.get_imaging_date(str(aqusition_block_1_paths[0]))
+            
+            self.imaging_date = self.get_imaging_date(
+                file_path = block_1
+            )
         else:
             raise Exception("Directory does not contain correct Aquisition Blocks")
 
@@ -151,8 +157,8 @@ class EMTUploader:
         )
 
     @staticmethod
-    def get_well_data(block_path):
-        block_img = AICSImage(block_path)
+    def get_well_data(file_path):
+        block_img = AICSImage(file_path)
 
         row_code = {
             "A": 1,
