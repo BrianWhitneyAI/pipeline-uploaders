@@ -197,6 +197,7 @@ class EMTUploader:
 
         return wells, scene_dict, rows, cols
 
+    @staticmethod
     def get_imaging_date(file_path):
         # path = './ImageDocument/Metadata/Information/Image/AcquisitionDateAndTime'
         file_img = AICSImage(file_path)
