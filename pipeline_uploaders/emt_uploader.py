@@ -35,9 +35,9 @@ class EMTUploader:
         aqusition_block_1_paths = [
             path for path in Path(dir_path).resolve().rglob("*pt1.czi")
         ]
-
+        print(aqusition_block_1_paths)
         # sets metadata (Wells,rows,cols,imaging_date) that is universal for use on untagged files (.czexp,.czmbi)
-        if not aqusition_block_1_paths:
+        if aqusition_block_1_paths:
             self.wells, self.scene_dict, self.rows, self.cols = self.get_well_data(
                 str(aqusition_block_1_paths[0])
             )
