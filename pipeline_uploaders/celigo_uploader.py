@@ -1,4 +1,4 @@
-from fms_uploader import FMSUploader
+from .fms_uploader import FMSUploader
 
 
 class CeligoUploader(FMSUploader):
