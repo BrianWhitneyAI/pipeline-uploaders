@@ -70,7 +70,7 @@ class EMTUploader:
                 if str(self.barcode) in filename:
                     if ".czi" in filename:
                         # temp_img_date = self.get_imaging_date(dirpath / filename) # sets Imaging date to the one specified in the images metadata instead of the abstract one
-                        if "10x" in filename:
+                        if "10x" or "10X" in filename:
                             self.files.append(
                                 self.metadata_formatter(
                                     barcode=self.barcode,
