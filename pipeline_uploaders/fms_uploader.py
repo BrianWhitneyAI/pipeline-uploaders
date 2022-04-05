@@ -62,7 +62,7 @@ class FMSUploader:
         return r.json()
 
     @staticmethod
-    def get_well_id(metadata_block : dict, row: int, col: int):  # TODO: Add typing to f
+    def get_well_id(metadata_block: dict, row: int, col: int):  # TODO: Add typing to f
 
         wells = metadata_block["wells"]
 

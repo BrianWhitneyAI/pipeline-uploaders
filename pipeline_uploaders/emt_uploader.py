@@ -7,6 +7,9 @@ from xml.etree.ElementTree import tostring as xml_to_string
 from aicsimageio import AICSImage
 from .fms_uploader import FMSUploader
 
+from typing import List
+
+
 """
 Starting code base for EMT Uploader 
 
@@ -21,12 +24,15 @@ Starting code base for EMT Uploader
         NOTE: look into helper constructor
 """
 
+
 class EMTUploader:
     def __init__(self, dir_path: str, env="stg"):
 
         BLOCK = "AcquisitionBlock"
         self.env = env
-        self.barcode = str(Path(dir_path).name.split("_")[0])  # this is oversimplified at moment
+        self.barcode = str(
+            Path(dir_path).name.split("_")[0]
+        )  # this is oversimplified at moment
         self.files = []  # This is where files + metadata go
 
         # Sets a Path to Aqusition Block 1 to extract metadata from the dir_path
@@ -36,14 +42,11 @@ class EMTUploader:
         # sets metadata (Wells,rows,cols,imaging_date) that is universal for use on untagged files (.czexp,.czmbi)
         if aqusition_block_1_paths:
             block_1 = str(aqusition_block_1_paths[0])
-            self.imaging_date = self.get_imaging_date(
-                file_path = block_1
-            )
+            self.imaging_date = self.get_imaging_date(file_path=block_1)
             self.wells, self.scene_dict, self.rows, self.cols = self.get_well_data(
-                file_path = block_1
+                file_path=block_1
             )
             # self.imaging_date = self.get_imaging_date(str(aqusition_block_1_paths[0]))
-            
 
         else:
             raise Exception("Directory does not contain correct Aquisition Blocks")
@@ -68,9 +71,10 @@ class EMTUploader:
                                 self.metadata_formatter(
                                     barcode=self.barcode,
                                     filename=file_path,
-                                    file_type="czi",  # needs to chage
+                                    file_type="CZI Image",  # needs to chage
                                     imaging_date=self.imaging_date,
                                     well_ids=self.well_ids,
+                                    wells=self.wells,
                                     objective=10,
                                     env=self.env,
                                 )
@@ -83,9 +87,10 @@ class EMTUploader:
                                 self.metadata_formatter(
                                     barcode=self.barcode,
                                     filename=file_path,
-                                    file_type="czi",
+                                    file_type="CZI Image",
                                     imaging_date=self.imaging_date,
                                     well_ids=self.well_ids,
+                                    wells=self.wells,
                                     objective=63,
                                     timepoint=timepoint,
                                     env=self.env,
@@ -101,6 +106,7 @@ class EMTUploader:
                                 file_type="czmbi",
                                 imaging_date=self.imaging_date,
                                 well_ids=self.well_ids,
+                                wells=self.wells,
                                 env=self.env,
                             )
                         )
@@ -112,9 +118,10 @@ class EMTUploader:
                         self.metadata_formatter(
                             barcode=self.barcode,
                             filename=file_path,
-                            file_type="czexp",
+                            file_type="ZEN Experiment File",
                             imaging_date=self.imaging_date,
                             well_ids=self.well_ids,
+                            wells=self.wells,
                             env=self.env,
                         )
                     )
@@ -124,26 +131,29 @@ class EMTUploader:
         barcode: str,
         filename: str,
         file_type: str,
-        well_ids: str,
+        well_ids: List[int],
+        wells: List[str],
         env: str,
         imaging_date: str,
-        objective=None,
-        timepoint=None,
+        objective: int = None,
+        timepoint: int = None,
     ):
 
         # this can change for however metadata is wanted to be formatted
         # microscopy.wellid, micoroscoy.imaging_date, micorcospy.fov_id, micorsocpy.objective, microsocpy.plate_barcode
-        
+
         r = FMSUploader.get_labkey_metadata(barcode)
 
         metadata = {
             "microscopy": {
-                "well_ids": well_ids,
+                "well_id": well_ids[0],
                 "imaging_date": imaging_date,
                 "objective": objective,
                 "plate_barcode": barcode,
                 "EMT": {
-                    "timepoint": timepoint, # TODO: add text for additional well information 
+                    "timepoint": timepoint,  # TODO: add text for additional well information
+                    "well_ids": well_ids,
+                    "wells": wells,
                 },
             },
         }
@@ -172,7 +182,7 @@ class EMTUploader:
         rows = []
         cols = []
 
-        with open("metadata.czi.xml", "w") as f: # TODO: Make this not output a file  
+        with open("metadata.czi.xml", "w") as f:  # TODO: Make this not output a file
             f.write(xml_to_string(block_img.metadata, encoding="unicode"))
         tree = ET.parse("metadata.czi.xml")
         root = tree.getroot()
@@ -196,7 +206,7 @@ class EMTUploader:
         # path = './ImageDocument/Metadata/Information/Image/AcquisitionDateAndTime'
         file_img = AICSImage(file_path)
 
-        with open("metadata.czi.xml", "w") as f: # TODO: Make this not output a file  
+        with open("metadata.czi.xml", "w") as f:  # TODO: Make this not output a file
             f.write(xml_to_string(file_img.metadata, encoding="unicode"))
         tree = ET.parse("metadata.czi.xml")
 
@@ -206,4 +216,4 @@ class EMTUploader:
 
     def upload(self):
         for file in self.files:
-            print(file.file_path.name +" File id: " + file.upload())
+            print(file.file_path.name + " File id: " + file.upload())
