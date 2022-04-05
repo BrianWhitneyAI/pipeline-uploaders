@@ -41,7 +41,7 @@ class CeligoUploader(FMSUploader):
 
         self.metadata = {
             "microscopy": {
-                "well_id": self.well_id,
+                "well_id": 3500004923,# self.well_id,
                 "plate_barcode": self.plate_barcode,
                 "celigo": {
                     "scan_time": self.scan_time,
@@ -50,6 +50,6 @@ class CeligoUploader(FMSUploader):
                 },
             }
         }
-        
+
     def upload(self):
         return super().upload()
