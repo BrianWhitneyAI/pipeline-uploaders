@@ -21,19 +21,21 @@ class CeligoUploader(FMSUploader):
         self.scan_date = ts[0] + "-" + ts[1] + "-" + ts[2]
         self.scan_time = ts[4] + "-" + ts[5] + "-" + ts[6]
 
-        self.row = raw_metadata[4][0]
-        self.col = raw_metadata[4][1:]
+        self.row = int(raw_metadata[4][0])
+        self.col = int(raw_metadata[4][1:])
 
         # Establishing a connection to labkey=
         r = self.get_labkey_metadata(self.plate_barcode)
+        self.well_ids = FMSUploader.get_well_id(r, self.row, self.col)
 
         self.metadata = {
             "microscopy": {
-                "well_id": FMSUploader.get_well_id(r, self.row, self.col),
+                "well_id": self.well_ids[0],
                 "plate_barcode": self.plate_barcode,
                 "celigo": {
                     "scan_time": self.scan_time,
                     "scan_date": self.scan_date,
+                    "well_ids": self.well_ids,
                 },
             }
         }
