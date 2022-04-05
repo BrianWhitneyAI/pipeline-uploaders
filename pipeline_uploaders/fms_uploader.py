@@ -41,9 +41,9 @@ class FMSUploader:
     @staticmethod
     def get_labkey_metadata(barcode: str, env = 'stg'):
 
-        if env is 'prod':
+        if env == 'prod':
             lk = LabKey(server_context=lkaccess.contexts.PROD)
-        elif env is 'stg':
+        elif env == 'stg':
             lk = LabKey(server_context=lkaccess.contexts.STAGE)        
         else:
             raise Exception(
