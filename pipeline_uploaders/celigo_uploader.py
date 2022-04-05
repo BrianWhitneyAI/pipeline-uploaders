@@ -7,6 +7,16 @@ class CeligoUploader(FMSUploader):
         file_path: str,
     ):
 
+        row_code = {
+            "A": 1,
+            "B": 2,
+            "C": 3,
+            "D": 4,
+            "E": 5,
+            "F": 6,
+            "G": 7,
+            "H": 8,
+        }
 
         self.file_type = 'TIFF Image'
         self.file_path = file_path
@@ -21,7 +31,7 @@ class CeligoUploader(FMSUploader):
         self.scan_date = ts[0] + "-" + ts[1] + "-" + ts[2]
         self.scan_time = ts[4] + "-" + ts[5] + "-" + ts[6]
 
-        self.row = int(raw_metadata[4][0])
+        self.row = int(row_code[raw_metadata[4][0]])
         self.col = int(raw_metadata[4][1:])
 
         # Establishing a connection to labkey=
