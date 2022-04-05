@@ -5,6 +5,7 @@ class CeligoUploader(FMSUploader):
     def __init__(
         self,
         file_path: str,
+        env: str = 'stg'
     ):
 
         row_code = {
@@ -29,7 +30,7 @@ class CeligoUploader(FMSUploader):
 
         ts = raw_metadata[2].split("-")
         self.scan_date = ts[2] + "-" + ts[1] + "-" + ts[0]
-        self.scan_time = ts[3] + "-" + ts[4] + "-" + ts[5] + " " + ts[6]
+        self.scan_time = ts[3] + ":" + ts[4] + ":" + ts[5] + " " + ts[6]
 
         self.row = int(row_code[raw_metadata[4][0]])
         self.col = int(raw_metadata[4][1:])
