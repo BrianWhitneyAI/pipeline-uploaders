@@ -133,17 +133,17 @@ class EMTUploader:
 
         # this can change for however metadata is wanted to be formatted
         # microscopy.wellid, micoroscoy.imaging_date, micorcospy.fov_id, micorsocpy.objective, microsocpy.plate_barcode
-        #
+        
         r = FMSUploader.get_labkey_metadata(barcode)
 
         metadata = {
             "microscopy": {
-                "well_ids": [well_ids],
-                "imaging_date": [imaging_date],
-                "objective": [objective],
-                "plate_barcode": [barcode],
+                "well_ids": well_ids,
+                "imaging_date": imaging_date,
+                "objective": objective,
+                "plate_barcode": barcode,
                 "EMT": {
-                    "timepoint": [timepoint],
+                    "timepoint": timepoint, # TODO: add text for additional well information 
                 },
             },
         }
