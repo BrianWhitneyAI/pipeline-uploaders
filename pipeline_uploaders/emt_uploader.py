@@ -7,7 +7,6 @@ from xml.etree.ElementTree import tostring as xml_to_string
 from aicsimageio import AICSImage
 from .fms_uploader import FMSUploader
 
-
 """
 Starting code base for EMT Uploader 
 
@@ -22,7 +21,6 @@ Starting code base for EMT Uploader
         NOTE: look into helper constructor
 """
 
-
 class EMTUploader:
     def __init__(self, dir_path: str, env="stg"):
 
@@ -35,15 +33,12 @@ class EMTUploader:
         aqusition_block_1_paths = [
             path for path in Path(dir_path).resolve().rglob("*pt1.czi")
         ]
-        print(aqusition_block_1_paths)
         # sets metadata (Wells,rows,cols,imaging_date) that is universal for use on untagged files (.czexp,.czmbi)
         if aqusition_block_1_paths:
             block_1 = str(aqusition_block_1_paths[0])
-            print(block_1)
             self.imaging_date = self.get_imaging_date(
                 file_path = block_1
             )
-            print(block_1)
             self.wells, self.scene_dict, self.rows, self.cols = self.get_well_data(
                 file_path = block_1
             )
@@ -60,7 +55,6 @@ class EMTUploader:
 
         self.well_ids = []
         r = FMSUploader.get_labkey_metadata(self.barcode)
-        print(r)
         for row, col in zip(self.rows, self.cols):
             self.well_ids.append(FMSUploader.get_well_id(r, row, col))
 
@@ -69,8 +63,7 @@ class EMTUploader:
                 file_path = f"{dirpath}/{filename}"
                 if str(self.barcode) in filename:
                     if ".czi" in filename:
-                        # temp_img_date = self.get_imaging_date(dirpath / filename) # sets Imaging date to the one specified in the images metadata instead of the abstract one
-                        if "10x" or "10X" in filename:
+                        if "10x" in filename.lower():
                             self.files.append(
                                 self.metadata_formatter(
                                     barcode=self.barcode,
@@ -179,7 +172,7 @@ class EMTUploader:
         rows = []
         cols = []
 
-        with open("metadata.czi.xml", "w") as f:
+        with open("metadata.czi.xml", "w") as f: # TODO: Make this not output a file  
             f.write(xml_to_string(block_img.metadata, encoding="unicode"))
         tree = ET.parse("metadata.czi.xml")
         root = tree.getroot()
@@ -203,7 +196,7 @@ class EMTUploader:
         # path = './ImageDocument/Metadata/Information/Image/AcquisitionDateAndTime'
         file_img = AICSImage(file_path)
 
-        with open("metadata.czi.xml", "w") as f:
+        with open("metadata.czi.xml", "w") as f: # TODO: Make this not output a file  
             f.write(xml_to_string(file_img.metadata, encoding="unicode"))
         tree = ET.parse("metadata.czi.xml")
 
@@ -213,4 +206,4 @@ class EMTUploader:
 
     def upload(self):
         for file in self.files:
-            file.upload()
+            print(file.file_path.name +" File id: " + file.upload())

@@ -26,17 +26,17 @@ class FMSUploader:
         run_count = 0
         while run_count < 5:
             try:
-                return fms.upload_file(
+                fms_file = fms.upload_file(
                     file_reference=self.file_path,
                     file_type=self.file_type,
                     metadata=self.metadata,
                 )
+                return fms_file.id
             except requests.exceptions.ReadTimeout:
                 print("")
                 run_count = run_count + 1
                 continue
-            break
-        return None
+        return "Upload Failed"
 
     @staticmethod
     def get_labkey_metadata(barcode: str):
