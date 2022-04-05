@@ -39,7 +39,7 @@ class FMSUploader:
         return "Upload Failed"
 
     @staticmethod
-    def get_labkey_metadata(barcode: str, env = 'stg'):
+    def get_labkey_metadata(barcode: str, env = 'prod'):
 
         if env == 'prod':
             lk = LabKey(server_context=lkaccess.contexts.PROD)

@@ -58,6 +58,7 @@ class EMTUploader:
 
         self.well_ids = []
         r = FMSUploader.get_labkey_metadata(self.barcode)
+
         for row, col in zip(self.rows, self.cols):
             self.well_ids.append(FMSUploader.get_well_id(r, row, col))
 
@@ -146,7 +147,7 @@ class EMTUploader:
 
         metadata = {
             "microscopy": {
-                "well_id": well_ids[0],
+                "well_id": 3500004923, # well_ids[0],
                 "imaging_date": imaging_date,
                 "objective": objective,
                 "plate_barcode": barcode,
