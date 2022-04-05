@@ -39,8 +39,16 @@ class FMSUploader:
         return "Upload Failed"
 
     @staticmethod
-    def get_labkey_metadata(barcode: str):
-        lk = LabKey(server_context=lkaccess.contexts.PROD)
+    def get_labkey_metadata(barcode: str, env = 'stg'):
+
+        if env is 'prod':
+            lk = LabKey(server_context=lkaccess.contexts.PROD)
+        elif env is 'stg':
+            lk = LabKey(server_context=lkaccess.contexts.STAGE)        
+        else:
+            raise Exception(
+                f"Not a valid env. Must be [prod, stg]"
+            )
 
         my_rows = lk.select_rows_as_list(
             schema_name="microscopy",
