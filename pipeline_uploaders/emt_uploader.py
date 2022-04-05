@@ -72,8 +72,9 @@ class EMTUploader:
                                 self.metadata_formatter(
                                     barcode=self.barcode,
                                     filename=file_path,
-                                    file_type="CZI Image",  # needs to chage
+                                    file_type="CZI Image", 
                                     imaging_date=self.imaging_date,
+                                    scene_map= self.scene_dict,
                                     well_ids=self.well_ids,
                                     wells=self.wells,
                                     objective=10,
@@ -90,6 +91,7 @@ class EMTUploader:
                                     filename=file_path,
                                     file_type="CZI Image",
                                     imaging_date=self.imaging_date,
+                                    scene_map= self.scene_dict,
                                     well_ids=self.well_ids,
                                     wells=self.wells,
                                     objective=63,
@@ -106,6 +108,7 @@ class EMTUploader:
                                 filename=file_path,
                                 file_type="czmbi",
                                 imaging_date=self.imaging_date,
+                                scene_map= self.scene_dict,
                                 well_ids=self.well_ids,
                                 wells=self.wells,
                                 env=self.env,
@@ -121,6 +124,7 @@ class EMTUploader:
                             filename=file_path,
                             file_type="ZEN Experiment File",
                             imaging_date=self.imaging_date,
+                            scene_map= self.scene_dict,
                             well_ids=self.well_ids,
                             wells=self.wells,
                             env=self.env,
@@ -136,6 +140,7 @@ class EMTUploader:
         wells: List[str],
         env: str,
         imaging_date: str,
+        scene_map: List[str],
         objective: int = None,
         timepoint: int = None,
     ):
@@ -147,15 +152,20 @@ class EMTUploader:
 
         metadata = {
             "microscopy": {
-                "well_id": 3500004923, # well_ids[0],
+                "well_id": 3500004923,# well_ids[0], # current database criteria does not allow for our well_id's 3500004923
                 "imaging_date": imaging_date,
                 "objective": objective,
                 "plate_barcode": barcode,
                 "EMT": {
-                    "timepoint": timepoint,  # TODO: add text for additional well information
+                    "timepoint": timepoint, 
                     "well_ids": well_ids,
                     "wells": wells,
+                    "scene_map": scene_map,
                 },
+            },
+
+            "file" : {
+                "disposition" : "tape",
             },
         }
 
