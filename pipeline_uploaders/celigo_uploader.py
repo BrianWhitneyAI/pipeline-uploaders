@@ -18,7 +18,7 @@ class CeligoUploader(FMSUploader):
             "G": 7,
             "H": 8,
         }
-
+        self.env = env
         self.file_type = 'TIFF Image'
         self.file_path = file_path
 
@@ -50,3 +50,6 @@ class CeligoUploader(FMSUploader):
                 },
             }
         }
+        
+    def upload(self):
+        return super().upload()
