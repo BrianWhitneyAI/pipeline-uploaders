@@ -106,7 +106,7 @@ class EMTUploader:
                             self.metadata_formatter(
                                 barcode=self.barcode,
                                 filename=file_path,
-                                file_type="czmbi",
+                                file_type="Zen Time Stitching File",
                                 imaging_date=self.imaging_date,
                                 scene_map= self.scene_dict,
                                 well_ids=self.well_ids,
@@ -213,7 +213,7 @@ class EMTUploader:
         return wells, scene_dict, rows, cols
 
     @staticmethod
-    def get_imaging_date(file_path):
+    def get_imaging_date(file_path): # TODO: move this to FMSUploader
         # path = './ImageDocument/Metadata/Information/Image/AcquisitionDateAndTime'
         file_img = AICSImage(file_path)
 

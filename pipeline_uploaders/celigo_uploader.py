@@ -4,18 +4,12 @@ from .fms_uploader import FMSUploader
 class CeligoUploader(FMSUploader):
     def __init__(
         self,
-        file_type: str,
         file_path: str,
     ):
-
-        # Defines path to original image to be uploaded
+        self.file_type = 'TIFF Image'
         self.file_path = file_path
 
-        # File type label for data that goes to FMS
-        self.file_type = file_type
-
-        # Parsing name for metadata (lines 19 - 30)
-        file_name = open(self.path).name.split("\\")[-1]
+        file_name = open(self.file_path).name.split("\\")[-1]
 
         raw_metadata = file_name.split("_")
 
