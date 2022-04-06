@@ -8,7 +8,7 @@ from aicsimageio import AICSImage
 from .fms_uploader import FMSUploader
 
 from typing import List
-
+from aicsfiles import FileManagementSystem
 
 """
 Starting code base for EMT Uploader 
@@ -41,13 +41,12 @@ class EMTUploader:
         ]
         # sets metadata (Wells,rows,cols,imaging_date) that is universal for use on untagged files (.czexp,.czmbi)
         if aqusition_block_1_paths:
-            block_1 = str(aqusition_block_1_paths[0])
-            self.imaging_date = self.get_imaging_date(file_path=block_1)
+            aqusition_block_1_path = str(aqusition_block_1_paths[0])
+            self.imaging_date = FMSUploader.get_imaging_date(file_path=aqusition_block_1_path)
             self.wells, self.scene_dict, self.rows, self.cols = self.get_well_data(
-                file_path=block_1
+                file_path=aqusition_block_1_path
             )
-            # self.imaging_date = self.get_imaging_date(str(aqusition_block_1_paths[0]))
-
+            self.optical_control_id = FMSUploader.get_optical_control_id(file_path = aqusition_block_1_path)
         else:
             raise Exception("Directory does not contain correct Aquisition Blocks")
 
@@ -72,9 +71,9 @@ class EMTUploader:
                                 self.metadata_formatter(
                                     barcode=self.barcode,
                                     filename=file_path,
-                                    file_type="CZI Image", 
+                                    file_type="CZI Image",
                                     imaging_date=self.imaging_date,
-                                    scene_map= self.scene_dict,
+                                    scene_map=self.scene_dict,
                                     well_ids=self.well_ids,
                                     wells=self.wells,
                                     objective=10,
@@ -91,9 +90,10 @@ class EMTUploader:
                                     filename=file_path,
                                     file_type="CZI Image",
                                     imaging_date=self.imaging_date,
-                                    scene_map= self.scene_dict,
+                                    scene_map=self.scene_dict,
                                     well_ids=self.well_ids,
                                     wells=self.wells,
+                                    optical_control_id= self.optical_control_id,
                                     objective=63,
                                     timepoint=timepoint,
                                     env=self.env,
@@ -108,7 +108,7 @@ class EMTUploader:
                                 filename=file_path,
                                 file_type="Zen Time Stitching File",
                                 imaging_date=self.imaging_date,
-                                scene_map= self.scene_dict,
+                                scene_map=self.scene_dict,
                                 well_ids=self.well_ids,
                                 wells=self.wells,
                                 env=self.env,
@@ -124,7 +124,7 @@ class EMTUploader:
                             filename=file_path,
                             file_type="ZEN Experiment File",
                             imaging_date=self.imaging_date,
-                            scene_map= self.scene_dict,
+                            scene_map=self.scene_dict,
                             well_ids=self.well_ids,
                             wells=self.wells,
                             env=self.env,
@@ -141,6 +141,7 @@ class EMTUploader:
         env: str,
         imaging_date: str,
         scene_map: List[str],
+        optical_control_id: str = None,
         objective: int = None,
         timepoint: int = None,
     ):
@@ -149,25 +150,32 @@ class EMTUploader:
         # microscopy.wellid, micoroscoy.imaging_date, micorcospy.fov_id, micorsocpy.objective, microsocpy.plate_barcode
 
         r = FMSUploader.get_labkey_metadata(barcode)
+        fms = FileManagementSystem()
+        builder = fms.create_file_metadata_builder()
+        builder.add_annotation("Well", well_ids[0]).add_annotation(
+            "Plate Barcode", barcode
+        ).add_annotation("Optical Control ID", optical_control_id)
 
-        metadata = {
-            "microscopy": {
-                "well_id": 3500004923,# well_ids[0], # current database criteria does not allow for our well_id's 3500004923
-                "imaging_date": imaging_date,
-                "objective": objective,
-                "plate_barcode": barcode,
-                "EMT": {
-                    "timepoint": timepoint, 
-                    "well_ids": well_ids,
-                    "wells": wells,
-                    "scene_map": scene_map,
-                },
-            },
+        metadata = builder.build()
 
-            "file" : {
-                "disposition" : "tape",
+        metadata["microscopy"] = {
+            "well_id": 3500004923,  # well_ids[0], # current database criteria does not allow for our well_id's.
+            "imaging_date": imaging_date,
+            "objective": objective,
+            "plate_barcode": barcode,
+            "EMT": {
+                "timepoint": timepoint,
+                "well_ids": well_ids,
+                "wells": wells,
+                "scene_map": scene_map,
             },
         }
+
+        metadata["file"] = (
+            {
+                "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
+            },
+        )
 
         return FMSUploader(
             file_path=filename, file_type=file_type, metadata=metadata, env=env
@@ -211,19 +219,6 @@ class EMTUploader:
             cols.append(int(well[1:]))
 
         return wells, scene_dict, rows, cols
-
-    @staticmethod
-    def get_imaging_date(file_path): # TODO: move this to FMSUploader
-        # path = './ImageDocument/Metadata/Information/Image/AcquisitionDateAndTime'
-        file_img = AICSImage(file_path)
-
-        with open("metadata.czi.xml", "w") as f:  # TODO: Make this not output a file
-            f.write(xml_to_string(file_img.metadata, encoding="unicode"))
-        tree = ET.parse("metadata.czi.xml")
-
-        imaging_date = tree.findall(".//AcquisitionDateAndTime")[0].text
-        # Delete file
-        return imaging_date.split("T")[0]
 
     def upload(self):
         for file in self.files:

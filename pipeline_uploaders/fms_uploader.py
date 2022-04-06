@@ -1,10 +1,13 @@
-import json
 from pathlib import Path
 
 import lkaccess.contexts
 import requests
 from aicsfiles import FileManagementSystem
 from lkaccess import LabKey, QueryFilter
+import xml.etree.ElementTree as ET
+from xml.etree.ElementTree import tostring as xml_to_string
+
+from aicsimageio import AICSImage
 
 """
 This is a superclass for uploading ot FMS
@@ -39,16 +42,14 @@ class FMSUploader:
         return "Upload Failed"
 
     @staticmethod
-    def get_labkey_metadata(barcode: str, env = 'prod'):
+    def get_labkey_metadata(barcode: str, env="prod"):
 
-        if env == 'prod':
+        if env == "prod":
             lk = LabKey(server_context=lkaccess.contexts.PROD)
-        elif env == 'stg':
-            lk = LabKey(server_context=lkaccess.contexts.STAGE)        
+        elif env == "stg":
+            lk = LabKey(server_context=lkaccess.contexts.STAGE)
         else:
-            raise Exception(
-                f"Not a valid env. Must be [prod, stg]"
-            )
+            raise Exception(f"Not a valid env. Must be [prod, stg]")
 
         my_rows = lk.select_rows_as_list(
             schema_name="microscopy",
@@ -82,3 +83,19 @@ class FMSUploader:
             raise Exception(
                 f"The well at row {row} column {col} does not exist in labkey"
             )
+
+    @staticmethod
+    def get_imaging_date(file_path):  # TODO: move this to FMSUploader
+        # path = './ImageDocument/Metadata/Information/Image/AcquisitionDateAndTime'
+        file_img = AICSImage(file_path)
+
+        with open("metadata.czi.xml", "w") as f:  # TODO: Make this not output a file
+            f.write(xml_to_string(file_img.metadata, encoding="unicode"))
+        tree = ET.parse("metadata.czi.xml")
+
+        imaging_date = tree.findall(".//AcquisitionDateAndTime")[0].text
+        # Delete file
+        return imaging_date.split("T")[0]
+
+    def get_optical_control_id(metadata_block):
+        return 0
