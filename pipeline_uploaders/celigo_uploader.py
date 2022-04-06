@@ -1,45 +1,55 @@
-from aicsfiles import FileManagementSystem
+from .fms_uploader import FMSUploader
+from pathlib import Path
 
-class CeligoUploader:
+class CeligoUploader(FMSUploader):
+    def __init__(
+        self,
+        file_path: str,
+        env: str = 'stg'
+    ):
 
-    def __init__(self, file_type, path):
-        self.path = path
-        self.file_type = file_type
-        file_name = open(self.path).name.split('\\')[-1]
+        row_code = {
+            "A": 1,
+            "B": 2,
+            "C": 3,
+            "D": 4,
+            "E": 5,
+            "F": 6,
+            "G": 7,
+            "H": 8,
+        }
+        self.env = env
+        self.file_type = 'TIFF Image'
+        self.file_path = file_path
+
+        file_name = Path(file_path).name
 
         raw_metadata = file_name.split("_")
 
-        plate_barcode = raw_metadata[0]
+        self.plate_barcode = int(raw_metadata[0])
 
-        ts = raw_metadata[2].split('-')
-        scan_date = ts[0] + '-'+ ts[1] + '-'+ ts[2]
-        scan_time = ts[4] + '-'+ ts[5] + '-'+ ts[6]
+        ts = raw_metadata[2].split("-")
+        self.scan_date = ts[2] + "-" + ts[1] + "-" + ts[0]
+        self.scan_time = ts[3] + ":" + ts[4] + ":" + ts[5] + " " + ts[6]
 
-        row = raw_metadata[4][0]
-        col = raw_metadata[4][1:]
-        
+        self.row = int(row_code[raw_metadata[4][0]])
+        self.col = int(raw_metadata[4][1:])
+
+        # Establishing a connection to labkey=
+        r = self.get_labkey_metadata(self.plate_barcode)
+        self.well_id = FMSUploader.get_well_id(r, self.row, self.col)
+
         self.metadata = {
-            "microsocpy": {
-                "plate_barcode": [plate_barcode],  # an existing fms file_id
+            "microscopy": {
+                "well_id": 3500004923,# self.well_id,
+                "plate_barcode": self.plate_barcode,
                 "celigo": {
-                    "scan_time": [scan_time],
-                    "scan_date": [scan_date],
-                    "row": [row],
-                    "coll": [col],
+                    "scan_time": self.scan_time,
+                    "scan_date": self.scan_date,
+
                 },
-            },
+            }
         }
 
-    def upload(self):  
-        fms = FileManagementSystem()
-        while True:
-            try:
-                fms.upload_file(self.path, file_type = self.file_type, metadata = self.metadata)
-                break
-            except OSError:
-                print("File Not Uploaded")
-            except ValueError:
-                print("File Not Uploaded")
-            except BaseException:
-                print("File Not Uploaded")
-
+    def upload(self):
+        return super().upload()

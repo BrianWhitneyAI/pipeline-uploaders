@@ -30,18 +30,13 @@ dev_requirements = [
     "bump2version ~= 1.0.1",
     "twine ~= 3.4.2",
     "wheel ~= 0.37.0",
-
     # Documentation generation
     "Sphinx ~= 4.1.2",
     "furo == 2021.8.17b43",  # Third-party theme (https://pradyunsg.me/furo/quickstart/)
     "m2r2 ~= 0.3.1",  # Sphinx extension for parsing README.md as reST and including in Sphinx docs
 ]
 
-requirements = [
-    "aicsimageio[czi] ~= 4.4",
-    "numpy ~= 1.21",
-    "scikit-image ~= 0.18"
-]
+requirements = ["aicsimageio[czi] ~= 4.4", "numpy ~= 1.21", "scikit-image ~= 0.18"]
 
 extra_requirements = {
     "setup": setup_requirements,
@@ -50,7 +45,7 @@ extra_requirements = {
     "all": [
         *requirements,
         *dev_requirements,
-    ]
+    ],
 }
 
 setup(
@@ -67,9 +62,7 @@ setup(
     ],
     description="A repository for cross project uploaders for pushing files to FMS",
     entry_points={
-        "console_scripts": [
-            "my_example=pipeline_uploaders.bin.my_example:main"
-        ],
+        "console_scripts": ["my_example=pipeline_uploaders.bin.my_example:main"],
     },
     install_requires=requirements,
     license="Allen Institute Software License",
