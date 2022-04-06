@@ -1,6 +1,9 @@
-from .fms_uploader import FMSUploader
 from pathlib import Path
+
 from aicsfiles import FileManagementSystem
+
+from .fms_uploader import FMSUploader
+
 
 class CeligoUploader(FMSUploader):
     def __init__(self, file_path: str, env: str = "stg"):
@@ -35,20 +38,26 @@ class CeligoUploader(FMSUploader):
         # Establishing a connection to labkey=
         r = self.get_labkey_metadata(self.plate_barcode)
         self.well_id = FMSUploader.get_well_id(r, self.row, self.col)
-        
+
         fms = FileManagementSystem()
-        builder = fms.create_file_metadata_builder()        
-        builder.add_annotation("Well", self.well_id).add_annotation("Plate Barcode", self.plate_barcode)
+        builder = fms.create_file_metadata_builder()
+        builder.add_annotation("Well", self.well_id).add_annotation(
+            "Plate Barcode", self.plate_barcode
+        ).add_annotation("Celigo Scan Time", self.scan_time).add_annotation(
+            "Celigo Scan Date", self.scan_date
+        )
 
         self.metadata = builder.build()
 
         self.metadata["microscopy"] = {
-                        "well_id": self.plate_barcode,# well_ids[0], # current database criteria does not allow for our well_id's 3500004923
-                        "plate_barcode": self.barcode,
-                        "celigo": {
-                            "scan_time": self.scan_time,
-                            "scan_date": self.scan_date,
-                        }
+            "well_id": self.well_ids[
+                0
+            ],  # current database criteria does not allow for our well_id's 3500004923
+            "plate_barcode": self.barcode,
+            "celigo": {
+                "scan_time": self.scan_time,
+                "scan_date": self.scan_date,
+            },
         }
 
     def upload(self):

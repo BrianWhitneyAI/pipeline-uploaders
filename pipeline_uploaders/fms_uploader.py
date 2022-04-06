@@ -1,18 +1,22 @@
+import os
+import xml.etree.ElementTree as ET
 from pathlib import Path
+from xml.etree.ElementTree import tostring as xml_to_string
 
 import lkaccess.contexts
 import requests
 from aicsfiles import FileManagementSystem
-from lkaccess import LabKey, QueryFilter
-import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import tostring as xml_to_string
-
 from aicsimageio import AICSImage
+from lkaccess import LabKey, QueryFilter
 
 """
 This is a superclass for uploading ot FMS
 
 """
+
+OPTICAL_CONTROL_DIR = (
+    "/allen/aics/microscopy/PRODUCTION/OpticalControl/ArgoLight/Argo_QC_Daily/"
+)
 
 
 class FMSUploader:
@@ -42,7 +46,7 @@ class FMSUploader:
         return "Upload Failed"
 
     @staticmethod
-    def get_labkey_metadata(barcode: str, env="prod"):
+    def get_labkey_metadata(barcode: str, env="stg"):
 
         if env == "prod":
             lk = LabKey(server_context=lkaccess.contexts.PROD)
@@ -94,8 +98,72 @@ class FMSUploader:
         tree = ET.parse("metadata.czi.xml")
 
         imaging_date = tree.findall(".//AcquisitionDateAndTime")[0].text
-        # Delete file
+        os.remove("metadata.czi.xml")
         return imaging_date.split("T")[0]
 
-    def get_optical_control_id(metadata_block):
-        return 0
+    def get_QC_daily_path(
+        system: str,  # Options are ZSD0, ZSD1, ZSD2, ZSD3, 3i0, 3i1
+        objective: int,  # Options are 100, 63, 20
+        date: int,  # Format is YYYYMMDD (e.g. 20220217)
+        reference_directory: str = OPTICAL_CONTROL_DIR,  # use path to Argo_QC_daily
+    ) -> Path:
+        opt_cont_files = []
+        for opt_dir in os.listdir(f"{reference_directory}/{system}"):
+            folder_metadata = opt_dir.split("_")
+            folder_metadata = [x.upper() for x in folder_metadata]
+            if (
+                all(x in folder_metadata for x in [system, f"{objective}X", str(date)])
+                is True
+            ):
+                opt_conts = [
+                    f
+                    for f in os.listdir(f"{reference_directory}/{system}/{opt_dir}")
+                    if f.endswith(".czi")
+                ]
+                for opt_cont in opt_conts:
+                    opt_cont_files.append(
+                        Path(f"{reference_directory}/{system}/{opt_dir}/{opt_cont}")
+                    )
+
+        if len(opt_cont_files) == 1:
+            return Path(opt_cont_files[0])
+        elif len(opt_cont_files) == 0:
+            raise Exception(
+                f"No files found with system: {system}, objective: {objective}, date: {date}"
+            )
+        else:
+            print(
+                f"Multiple files found with system: {system}, objective: {objective}, date: {date}. Printing all paths, and outputting the first found"
+            )
+            for i in opt_cont_files:
+                print(i)
+            return Path(opt_cont_files[0])
+
+    def get_objective(file_path):
+        # path = './ImageDocument/Metadata/Information/Image/AcquisitionDateAndTime'
+        file_img = AICSImage(file_path)
+
+        with open("metadata.czi.xml", "w") as f:  # TODO: Make this not output a file
+            f.write(xml_to_string(file_img.metadata, encoding="unicode"))
+        tree = ET.parse("metadata.czi.xml")
+
+        objective = tree.findall(".//TheoreticalTotalMagnification")[
+            0
+        ].text  # TODO: This is not quite the right path
+        os.remove("metadata.czi.xml")
+        return 63
+
+    def get_system(file_path):
+        # path = './ImageDocument/Metadata/Information/Image/AcquisitionDateAndTime'
+        file_img = AICSImage(file_path)
+
+        with open("metadata.czi.xml", "w") as f:  # TODO: Make this not output a file
+            f.write(xml_to_string(file_img.metadata, encoding="unicode"))
+        tree = ET.parse("metadata.czi.xml")
+
+        system = tree.findall(".//FirstName")[
+            0
+        ].text  # TODO: This is not quite the right path
+        # Delete file
+        os.remove("metadata.czi.xml")
+        return system

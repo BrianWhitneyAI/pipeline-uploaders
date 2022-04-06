@@ -1,14 +1,13 @@
 import os
-from re import A
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from typing import List
 from xml.etree.ElementTree import tostring as xml_to_string
 
-from aicsimageio import AICSImage
-from .fms_uploader import FMSUploader
-
-from typing import List
 from aicsfiles import FileManagementSystem
+from aicsimageio import AICSImage
+
+from .fms_uploader import FMSUploader
 
 """
 Starting code base for EMT Uploader 
@@ -39,14 +38,53 @@ class EMTUploader:
         aqusition_block_1_paths = [
             path for path in Path(dir_path).resolve().rglob("*pt1.czi")
         ]
+
         # sets metadata (Wells,rows,cols,imaging_date) that is universal for use on untagged files (.czexp,.czmbi)
         if aqusition_block_1_paths:
             aqusition_block_1_path = str(aqusition_block_1_paths[0])
-            self.imaging_date = FMSUploader.get_imaging_date(file_path=aqusition_block_1_path)
+
+            self.imaging_date = FMSUploader.get_imaging_date(
+                file_path=aqusition_block_1_path
+            )
+
             self.wells, self.scene_dict, self.rows, self.cols = self.get_well_data(
                 file_path=aqusition_block_1_path
             )
-            self.optical_control_id = FMSUploader.get_optical_control_id(file_path = aqusition_block_1_path)
+
+            self.system = FMSUploader.get_system(file_path=aqusition_block_1_path)
+            self.objective = "63x/1.2W"  # TODO: make this metadata dependent
+            self.optical_control_path = FMSUploader.get_QC_daily_path(
+                system=self.system,
+                objective=self.objective,
+                date=self.imaging_date,
+            )
+
+            self.optical_control_slide_id = Path(self.optical_control_path).name.split(
+                "_"
+            )[3]
+
+            fms = FileManagementSystem()
+            builder = fms.create_file_metadata_builder()
+
+            builder.add_annotation("Imaging Date", self.imaging_date).add_annotation(
+                "Imaged By", "EMT Pipeline"
+            ).add_annotation("Is Optical Control", "Yes").add_annotation(
+                "Instrument", self.system
+            ).add_annotation(
+                "Objective", self.objective
+            ).add_annotation(
+                "Argolight Slide ID", self.optical_control_slide_id
+            ).add_annotation(
+                "Argolight pattern",
+                "Field of rings",  # maybe should talk about changing to Capitol R
+            )
+
+            self.optical_control_id = fms.upload_file(
+                file_reference=self.file_path,
+                file_type=self.file_type,
+                metadata=self.metadata,
+            )
+
         else:
             raise Exception("Directory does not contain correct Aquisition Blocks")
 
@@ -76,7 +114,7 @@ class EMTUploader:
                                     scene_map=self.scene_dict,
                                     well_ids=self.well_ids,
                                     wells=self.wells,
-                                    objective=10,
+                                    objective=10,  # TODO: get this from metadata
                                     env=self.env,
                                 )
                             )
@@ -92,9 +130,7 @@ class EMTUploader:
                                     imaging_date=self.imaging_date,
                                     scene_map=self.scene_dict,
                                     well_ids=self.well_ids,
-                                    wells=self.wells,
-                                    optical_control_id= self.optical_control_id,
-                                    objective=63,
+                                    optical_control_id=self.optical_control_id,
                                     timepoint=timepoint,
                                     env=self.env,
                                 )
@@ -110,7 +146,6 @@ class EMTUploader:
                                 imaging_date=self.imaging_date,
                                 scene_map=self.scene_dict,
                                 well_ids=self.well_ids,
-                                wells=self.wells,
                                 env=self.env,
                             )
                         )
@@ -126,7 +161,6 @@ class EMTUploader:
                             imaging_date=self.imaging_date,
                             scene_map=self.scene_dict,
                             well_ids=self.well_ids,
-                            wells=self.wells,
                             env=self.env,
                         )
                     )
@@ -137,12 +171,10 @@ class EMTUploader:
         filename: str,
         file_type: str,
         well_ids: List[int],
-        wells: List[str],
         env: str,
         imaging_date: str,
         scene_map: List[str],
         optical_control_id: str = None,
-        objective: int = None,
         timepoint: int = None,
     ):
 
@@ -152,21 +184,21 @@ class EMTUploader:
         r = FMSUploader.get_labkey_metadata(barcode)
         fms = FileManagementSystem()
         builder = fms.create_file_metadata_builder()
-        builder.add_annotation("Well", well_ids[0]).add_annotation(
+        builder.add_annotation("Well", well_ids).add_annotation(
             "Plate Barcode", barcode
-        ).add_annotation("Optical Control ID", optical_control_id)
+        ).add_annotation("Optical Control ID", optical_control_id).add_annotation(
+            "EMT Timepoint", timepoint
+        )  # TODO: make this annotation in file uploader
 
         metadata = builder.build()
 
         metadata["microscopy"] = {
-            "well_id": 3500004923,  # well_ids[0], # current database criteria does not allow for our well_id's.
+            "well_id": well_ids[
+                0
+            ],  # current database criteria does not allow for our well_id's.
             "imaging_date": imaging_date,
-            "objective": objective,
             "plate_barcode": barcode,
             "EMT": {
-                "timepoint": timepoint,
-                "well_ids": well_ids,
-                "wells": wells,
                 "scene_map": scene_map,
             },
         }
