@@ -71,15 +71,15 @@ class EMTUploader:
             ).add_annotation("Is Optical Control", True).add_annotation(
                 "Instrument", self.system
             ).add_annotation(
-                "Objective", self.objective
+                "Objective", "63x/1.2W"
             ).add_annotation(
                 "Argolight Slide ID", self.optical_control_slide_id
             ).add_annotation(
-                "Argolight pattern",
-                "Field of rings",  # maybe should talk about changing to Capitol R
+                "Argolight pattern", "Field of rings"  # maybe should talk about changing to Capitol R
             )
 
             optical_control_metadata = builder.build()
+            \
             optical_control_metadata["file"] = (
                 {
                     "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
