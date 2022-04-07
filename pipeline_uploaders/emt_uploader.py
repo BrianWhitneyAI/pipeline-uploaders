@@ -63,12 +63,12 @@ class EMTUploader:
                 "_"
             )[3]
 
-            fms = FileManagementSystem()
+            fms = FileManagementSystem(env = 'stg')
             builder = fms.create_file_metadata_builder()
 
             builder.add_annotation("Imaging Date", self.imaging_date).add_annotation(
                 "Imaged By", "EMT Pipeline"
-            ).add_annotation("Is Optical Control", "Yes").add_annotation(
+            ).add_annotation("Is Optical Control", True).add_annotation(
                 "Instrument", self.system
             ).add_annotation(
                 "Objective", self.objective
@@ -191,7 +191,7 @@ class EMTUploader:
         # microscopy.wellid, micoroscoy.imaging_date, micorcospy.fov_id, micorsocpy.objective, microsocpy.plate_barcode
 
         r = FMSUploader.get_labkey_metadata(barcode)
-        fms = FileManagementSystem()
+        fms = FileManagementSystem(env = 'stg')
         builder = fms.create_file_metadata_builder()
         builder.add_annotation("Well", well_ids).add_annotation(
             "Plate Barcode", barcode
