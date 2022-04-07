@@ -52,11 +52,11 @@ class EMTUploader:
             )
 
             self.system = FMSUploader.get_system(file_path=aqusition_block_1_path)
-            self.objective = "63x/1.2W"  # TODO: make this metadata dependent
+            self.objective =  63 # "63x/1.2W"  # TODO: make this metadata dependent
             self.optical_control_path = FMSUploader.get_QC_daily_path(
                 system=self.system,
                 objective=self.objective,
-                date=self.imaging_date,
+                date=int(self.imaging_date.replace("-",""),
             )
 
             self.optical_control_slide_id = Path(self.optical_control_path).name.split(
