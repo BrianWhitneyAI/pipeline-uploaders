@@ -39,7 +39,6 @@ class EMTUploader:
             path for path in Path(dir_path).resolve().rglob("*pt1.czi")
         ]
 
-        # sets metadata (Wells,rows,cols,imaging_date) that is universal for use on untagged files (.czexp,.czmbi)
         if aqusition_block_1_paths:
             aqusition_block_1_path = str(aqusition_block_1_paths[0])
 
@@ -52,7 +51,8 @@ class EMTUploader:
             )
 
             self.system = FMSUploader.get_system(file_path=aqusition_block_1_path)
-            self.objective =  63 # "63x/1.2W"  # TODO: make this metadata dependent
+            self.objective =  FMSUploader.get_objective(file_path= aqusition_block_1_path)  
+
             self.optical_control_path = FMSUploader.get_QC_daily_path(
                 system=self.system,
                 objective=self.objective,
@@ -71,7 +71,7 @@ class EMTUploader:
             ).add_annotation("Is Optical Control", True).add_annotation(
                 "Instrument", self.system
             ).add_annotation(
-                "Objective", "63x/1.2W"
+                "Objective", FMSUploader.objective_mapping(self.objective)
             ).add_annotation(
                 "Argolight Slide ID", self.optical_control_slide_id
             ).add_annotation(
@@ -79,7 +79,6 @@ class EMTUploader:
             )
 
             optical_control_metadata = builder.build()
-            \
             optical_control_metadata["file"] = (
                 {
                     "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
