@@ -80,8 +80,8 @@ class EMTUploader:
             )
 
             self.optical_control_id = fms.upload_file(
-                file_reference=self.file_path,
-                file_type=self.file_type,
+                file_reference=self.optical_control_path,
+                file_type='argolight optical control',
                 metadata=self.metadata,
             )
 
