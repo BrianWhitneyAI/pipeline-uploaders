@@ -79,10 +79,12 @@ class EMTUploader:
                 "Field of rings",  # maybe should talk about changing to Capitol R
             )
 
+            optical_control_metadata = builder.build()
+
             self.optical_control_id = fms.upload_file(
                 file_reference=self.optical_control_path,
                 file_type='argolight optical control',
-                metadata=self.metadata,
+                metadata=optical_control_metadata
             )
 
         else:
