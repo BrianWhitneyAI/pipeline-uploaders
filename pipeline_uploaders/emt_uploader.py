@@ -80,12 +80,19 @@ class EMTUploader:
             )
 
             optical_control_metadata = builder.build()
+            optical_control_metadata["file"] = (
+                {
+                    "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
+                },
+            )
 
             self.optical_control_id = fms.upload_file(
                 file_reference=self.optical_control_path,
-                file_type='argolight optical control',
+                file_type='CZI Image',
                 metadata=optical_control_metadata
             )
+
+
 
         else:
             raise Exception("Directory does not contain correct Aquisition Blocks")
