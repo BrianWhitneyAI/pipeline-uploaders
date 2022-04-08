@@ -79,11 +79,10 @@ class EMTUploader:
             )
 
             optical_control_metadata = builder.build()
-            optical_control_metadata["file"] = (
-                {
+            
+            optical_control_metadata["file"] = {
                     "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
-                },
-            )
+            }
 
             print(self.optical_control_path)
             print(optical_control_metadata)
