@@ -163,7 +163,7 @@ class FMSUploader:
             0
         ].text) # TODO: This is not quite the right path
         os.remove("metadata.czi.xml")
-        return objective / 10
+        return 63
 
     def get_system(file_path):
         # path = './ImageDocument/Metadata/Information/Image/AcquisitionDateAndTime'
