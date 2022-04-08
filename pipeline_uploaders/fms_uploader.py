@@ -159,9 +159,7 @@ class FMSUploader:
             f.write(xml_to_string(file_img.metadata, encoding="unicode"))
         tree = ET.parse("metadata.czi.xml")
 
-        objective = int(tree.findall(".//TotalMagnification")[
-            0
-        ].text) # TODO: This is not quite the right path
+       # objective = int(tree.findall(".//TotalMagnification")[0].text) # TODO: This is not quite the right path
         os.remove("metadata.czi.xml")
         return 63
 
