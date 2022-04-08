@@ -50,7 +50,7 @@ class EMTUploader:
                 file_path=aqusition_block_1_path
             )
 
-            self.system = FMSUploader.get_system(file_path=aqusition_block_1_path)
+            self.system = 'ZSD0' # FMSUploader.get_system(file_path=aqusition_block_1_path)
             self.objective =  FMSUploader.get_objective(file_path= aqusition_block_1_path)  
 
             self.optical_control_path = FMSUploader.get_QC_daily_path(
@@ -79,7 +79,7 @@ class EMTUploader:
             )
 
             optical_control_metadata = builder.build()
-            
+
             optical_control_metadata["file"] = {
                     "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
             }
@@ -87,11 +87,13 @@ class EMTUploader:
             print(self.optical_control_path)
             print(optical_control_metadata)
 
-            self.optical_control_id = fms.upload_file(
+            self.optical_control = fms.upload_file(
                 self.optical_control_path,
                 file_type='CZI Image',
                 metadata=optical_control_metadata
             )
+
+            self.optical_control_id = self.optical_control.id
 
 
 
@@ -213,11 +215,10 @@ class EMTUploader:
             },
         }
 
-        metadata["file"] = (
-            {
+        metadata["file"] = {
                 "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
-            },
-        )
+        },
+    
 
         return FMSUploader(
             file_path=filename, file_type=file_type, metadata=metadata, env=env
