@@ -179,4 +179,4 @@ class FMSUploader:
         return system
     
     def objective_mapping(objective : int):
-        return OBJECTIVE_MAPPING(objective)
+        return OBJECTIVE_MAPPING[objective]
