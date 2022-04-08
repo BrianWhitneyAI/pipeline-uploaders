@@ -46,7 +46,7 @@ class FMSUploader:
         while run_count < 5:
             try:
                 fms_file = fms.upload_file(
-                    file_reference=self.file_path,
+                    self.file_path,
                     file_type=self.file_type,
                     metadata=self.metadata,
                 )
