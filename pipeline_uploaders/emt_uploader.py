@@ -94,7 +94,7 @@ class EMTUploader:
             )
 
             self.optical_control_id = self.optical_control.id
-
+            print(self.optical_control_id)
 
 
         else:
