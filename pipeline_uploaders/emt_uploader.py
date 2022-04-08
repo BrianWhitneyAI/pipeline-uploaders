@@ -89,7 +89,7 @@ class EMTUploader:
             print(optical_control_metadata)
 
             self.optical_control_id = fms.upload_file(
-                str(self.optical_control_path),
+                self.optical_control_path,
                 file_type='CZI Image',
                 metadata=optical_control_metadata
             )
