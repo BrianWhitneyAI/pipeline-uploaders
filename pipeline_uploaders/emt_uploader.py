@@ -85,9 +85,6 @@ class EMTUploader:
                 "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
             }
 
-            print(self.optical_control_path)
-            print(optical_control_metadata)
-
             self.optical_control = fms.upload_file(
                 self.optical_control_path,
                 file_type="CZI Image",
@@ -95,7 +92,6 @@ class EMTUploader:
             )
 
             self.optical_control_id = self.optical_control.id
-            print(self.optical_control_id)
 
         else:
             raise Exception("Directory does not contain correct Aquisition Blocks")
@@ -216,7 +212,7 @@ class EMTUploader:
 
         metadata["file"] = {
                 "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
-        },
+        }
         
 
         return FMSUploader(
