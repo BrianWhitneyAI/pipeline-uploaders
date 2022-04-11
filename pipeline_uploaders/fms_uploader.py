@@ -19,15 +19,22 @@ OPTICAL_CONTROL_DIR = (
 )
 
 OBJECTIVE_MAPPING = {
-    20: '20x/0.80',
-    40: '40x/1.2W', 
-    63: '63x/1.2W', 
-    100: '100x/1.25W', 
-    101: '100x/1.46Oil', 
-    44.83 : '44.83x/1.0W', 
-    5 : '5x/0.12', 
-    10 : '10x/0.45',
+    20: "20x/0.80",
+    40: "40x/1.2W",
+    63: "63x/1.2W",
+    100: "100x/1.25W",
+    101: "100x/1.46Oil",  # We dont use Oil currently
+    44.83: "44.83x/1.0W",
+    5: "5x/0.12",
+    10: "10x/0.45",
+}
 
+SYSTEM_MAPPING = {
+    "ZSD0": "ZSD-0",
+    "ZSD1": "ZSD-1",
+    "ZSD2": "ZSD-2",
+    "ZSD3": "ZSD-3"
+    # More systems ...
 }
 
 
@@ -159,7 +166,7 @@ class FMSUploader:
             f.write(xml_to_string(file_img.metadata, encoding="unicode"))
         tree = ET.parse("metadata.czi.xml")
 
-       # objective = int(tree.findall(".//TotalMagnification")[0].text) # TODO: This is not quite the right path
+        # objective = int(tree.findall(".//TotalMagnification")[0].text) # TODO: This is not quite the right path
         os.remove("metadata.czi.xml")
         return 63
 
@@ -176,7 +183,7 @@ class FMSUploader:
         ].text  # TODO: This is not quite the right path
         # Delete file
         os.remove("metadata.czi.xml")
-        return system
-    
-    def objective_mapping(objective : int):
+        return SYSTEM_MAPPING[system]
+
+    def objective_mapping(objective: int):
         return OBJECTIVE_MAPPING[objective]

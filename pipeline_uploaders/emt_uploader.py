@@ -50,20 +50,20 @@ class EMTUploader:
                 file_path=aqusition_block_1_path
             )
 
-            self.system = 'ZSD0' # FMSUploader.get_system(file_path=aqusition_block_1_path)
-            self.objective =  FMSUploader.get_objective(file_path= aqusition_block_1_path)  
+            self.system = FMSUploader.get_system(file_path=aqusition_block_1_path)
+            self.objective = FMSUploader.get_objective(file_path=aqusition_block_1_path)
 
             self.optical_control_path = FMSUploader.get_QC_daily_path(
                 system=self.system,
                 objective=self.objective,
-                date=int(self.imaging_date.replace("-","")),
+                date=int(self.imaging_date.replace("-", "")),
             )
 
             self.optical_control_slide_id = Path(self.optical_control_path).name.split(
                 "_"
             )[3]
 
-            fms = FileManagementSystem(env = 'stg')
+            fms = FileManagementSystem(env="stg")
             builder = fms.create_file_metadata_builder()
 
             builder.add_annotation("Imaging Date", self.imaging_date).add_annotation(
@@ -75,13 +75,14 @@ class EMTUploader:
             ).add_annotation(
                 "Argolight Slide ID", self.optical_control_slide_id
             ).add_annotation(
-                "Argolight pattern", "Field of rings"  # maybe should talk about changing to Capitol R
+                "Argolight pattern",
+                "Field of rings",  # maybe should talk about changing to Capitol R
             )
 
             optical_control_metadata = builder.build()
 
             optical_control_metadata["file"] = {
-                    "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
+                "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
             }
 
             print(self.optical_control_path)
@@ -89,13 +90,12 @@ class EMTUploader:
 
             self.optical_control = fms.upload_file(
                 self.optical_control_path,
-                file_type='CZI Image',
-                metadata=optical_control_metadata
+                file_type="CZI Image",
+                metadata=optical_control_metadata,
             )
 
             self.optical_control_id = self.optical_control.id
             print(self.optical_control_id)
-
 
         else:
             raise Exception("Directory does not contain correct Aquisition Blocks")
@@ -126,7 +126,6 @@ class EMTUploader:
                                     scene_map=self.scene_dict,
                                     well_ids=self.well_ids,
                                     wells=self.wells,
-                                    objective=10,  # TODO: get this from metadata
                                     env=self.env,
                                 )
                             )
@@ -194,7 +193,7 @@ class EMTUploader:
         # microscopy.wellid, micoroscoy.imaging_date, micorcospy.fov_id, micorsocpy.objective, microsocpy.plate_barcode
 
         r = FMSUploader.get_labkey_metadata(barcode)
-        fms = FileManagementSystem(env = 'stg')
+        fms = FileManagementSystem(env="stg")
         builder = fms.create_file_metadata_builder()
         builder.add_annotation("Well", well_ids).add_annotation(
             "Plate Barcode", barcode
@@ -215,10 +214,11 @@ class EMTUploader:
             },
         }
 
-        metadata["file"] = {
+        metadata["file"] = (
+            {
                 "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
-        },
-    
+            },
+        )
 
         return FMSUploader(
             file_path=filename, file_type=file_type, metadata=metadata, env=env
