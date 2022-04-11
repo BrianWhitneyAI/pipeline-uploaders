@@ -214,11 +214,10 @@ class EMTUploader:
             },
         }
 
-        metadata["file"] = (
-            {
+        metadata["file"] = {
                 "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
-            },
-        )
+        },
+        
 
         return FMSUploader(
             file_path=filename, file_type=file_type, metadata=metadata, env=env
