@@ -69,7 +69,7 @@ class EMTUploader:
             builder.add_annotation("Imaging Date", self.imaging_date).add_annotation(
                 "Imaged By", "EMT Pipeline"
             ).add_annotation("Is Optical Control", True).add_annotation(
-                "Instrument", self.system
+                "Instrument", FMSUploader.system_mapping(self.system)
             ).add_annotation(
                 "Objective", FMSUploader.objective_mapping(self.objective)
             ).add_annotation(

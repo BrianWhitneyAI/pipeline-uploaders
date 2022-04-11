@@ -187,3 +187,6 @@ class FMSUploader:
 
     def objective_mapping(objective: int):
         return OBJECTIVE_MAPPING[objective]
+
+    def system_mapping(objective: int):
+        return SYSTEM_MAPPING[objective]
