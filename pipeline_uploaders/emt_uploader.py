@@ -125,7 +125,7 @@ class EMTUploader:
                                     imaging_date=self.imaging_date,
                                     scene_map=self.scene_dict,
                                     well_ids=self.well_ids,
-                                    wells=self.wells,
+                                    optical_control_id=self.optical_control_id,
                                     env=self.env,
                                 )
                             )
