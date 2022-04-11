@@ -114,7 +114,7 @@ class EMTUploader:
                     if ".czi" in filename:
                         if "10x" in filename.lower():
                             self.files.append(
-                                self.metadata_formatter(
+                                self.wellscan_metadata_formatter(
                                     barcode=self.barcode,
                                     filename=file_path,
                                     file_type="CZI Image",
@@ -130,7 +130,7 @@ class EMTUploader:
                                 [s for s in filename.split("_") if BLOCK in s][0][-1]
                             )
                             self.files.append(
-                                self.metadata_formatter(
+                                self.block_metadata_formatter(
                                     barcode=self.barcode,
                                     filename=file_path,
                                     file_type="CZI Image",
@@ -146,7 +146,7 @@ class EMTUploader:
                         # Labkey Metadata
                         # pipeline 4 annotations
                         self.files.append(
-                            self.metadata_formatter(
+                            self.czmbi_metadata_formatter(
                                 barcode=self.barcode,
                                 filename=file_path,
                                 file_type="Zen Time Stitching File",
@@ -161,7 +161,7 @@ class EMTUploader:
                     # Labkey Metadata
                     # pipeline 4 annotations
                     self.files.append(
-                        self.metadata_formatter(
+                        self.czexp_metadata_formatter(
                             barcode=self.barcode,
                             filename=file_path,
                             file_type="ZEN Experiment File",
@@ -173,7 +173,7 @@ class EMTUploader:
                     )
 
     @staticmethod
-    def metadata_formatter(
+    def block_metadata_formatter(
         barcode: str,
         filename: str,
         file_type: str,
@@ -181,12 +181,9 @@ class EMTUploader:
         env: str,
         imaging_date: str,
         scene_map: List[str],
-        optical_control_id: str = None,
-        timepoint: int = None,
+        optical_control_id: str,
+        timepoint: int,
     ):
-
-        # this can change for however metadata is wanted to be formatted
-        # microscopy.wellid, micoroscoy.imaging_date, micorcospy.fov_id, micorsocpy.objective, microsocpy.plate_barcode
 
         r = FMSUploader.get_labkey_metadata(barcode)
         fms = FileManagementSystem(env="stg")
@@ -211,9 +208,125 @@ class EMTUploader:
         }
 
         metadata["file"] = {
-                "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
+            "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
         }
-        
+
+        return FMSUploader(
+            file_path=filename, file_type=file_type, metadata=metadata, env=env
+        )
+
+    @staticmethod
+    def wellscan_metadata_formatter(
+        barcode: str,
+        filename: str,
+        file_type: str,
+        well_ids: List[int],
+        env: str,
+        imaging_date: str,
+        scene_map: List[str],
+        optical_control_id: str,
+    ):
+
+        r = FMSUploader.get_labkey_metadata(barcode)
+        fms = FileManagementSystem(env="stg")
+        builder = fms.create_file_metadata_builder()
+        builder.add_annotation("Well", well_ids).add_annotation(
+            "Plate Barcode", barcode
+        ).add_annotation("Optical Control ID", optical_control_id)
+
+        metadata = builder.build()
+
+        metadata["microscopy"] = {
+            "well_id": well_ids[
+                0
+            ],  # current database criteria does not allow for our well_id's.
+            "imaging_date": imaging_date,
+            "plate_barcode": barcode,
+            "EMT": {
+                "scene_map": scene_map,
+            },
+        }
+
+        metadata["file"] = {
+            "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
+        }
+
+        return FMSUploader(
+            file_path=filename, file_type=file_type, metadata=metadata, env=env
+        )
+
+    @staticmethod
+    def czmbi_metadata_formatter(
+        barcode: str,
+        filename: str,
+        file_type: str,
+        well_ids: List[int],
+        env: str,
+        imaging_date: str,
+        scene_map: List[str],
+    ):
+        r = FMSUploader.get_labkey_metadata(barcode)
+        fms = FileManagementSystem(env="stg")
+        builder = fms.create_file_metadata_builder()
+        builder.add_annotation("Well", well_ids).add_annotation(
+            "Plate Barcode", barcode
+        )
+
+        metadata = builder.build()
+
+        metadata["microscopy"] = {
+            "well_id": well_ids[
+                0
+            ],  # current database criteria does not allow for our well_id's.
+            "imaging_date": imaging_date,
+            "plate_barcode": barcode,
+            "EMT": {
+                "scene_map": scene_map,
+            },
+        }
+
+        metadata["file"] = {
+            "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
+        }
+
+        return FMSUploader(
+            file_path=filename, file_type=file_type, metadata=metadata, env=env
+        )
+
+    @staticmethod
+    def czexp_metadata_formatter(
+        barcode: str,
+        filename: str,
+        file_type: str,
+        well_ids: List[int],
+        env: str,
+        imaging_date: str,
+        scene_map: List[str],
+    ):
+
+        r = FMSUploader.get_labkey_metadata(barcode)
+        fms = FileManagementSystem(env="stg")
+        builder = fms.create_file_metadata_builder()
+        builder.add_annotation("Well", well_ids).add_annotation(
+            "Plate Barcode", barcode
+        )
+
+        metadata = builder.build()
+
+        metadata["microscopy"] = {
+            "well_id": well_ids[
+                0
+            ],  # current database criteria does not allow for our well_id's.
+            "imaging_date": imaging_date,
+            "plate_barcode": barcode,
+            "EMT": {
+                "scene_map": scene_map,
+            },
+        }
+
+        metadata["file"] = {
+            "disposition": "tape",  # This is added to avoid FSS automatically makeing tiffs from the CZIs
+        }
 
         return FMSUploader(
             file_path=filename, file_type=file_type, metadata=metadata, env=env
