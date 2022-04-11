@@ -183,7 +183,7 @@ class FMSUploader:
         ].text  # TODO: This is not quite the right path
         # Delete file
         os.remove("metadata.czi.xml")
-        return SYSTEM_MAPPING[system]
+        return system
 
     def objective_mapping(objective: int):
         return OBJECTIVE_MAPPING[objective]
