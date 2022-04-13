@@ -38,6 +38,7 @@ class CeligoUploader(FMSUploader):
         # Establishing a connection to labkey=
         r = self.get_labkey_metadata(self.plate_barcode)
         self.well_id = FMSUploader.get_well_id(r, self.row, self.col)
+        self.well = raw_metadata[4]
 
         fms = FileManagementSystem()
         builder = fms.create_file_metadata_builder()
