@@ -50,9 +50,7 @@ class CeligoUploader(FMSUploader):
         self.metadata = builder.build()
 
         self.metadata["microscopy"] = {
-            "well_id": self.well_ids[
-                0
-            ],  # current database criteria does not allow for our well_id's 3500004923
+            "well_id": self.well_id, # current database criteria does not allow for our well_id's 3500004923
             "plate_barcode": self.barcode,
             "celigo": {
                 "scan_time": self.scan_time,
