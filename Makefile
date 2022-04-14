@@ -1,59 +1,99 @@
-.PHONY: clean build docs help
-.DEFAULT_GOAL := help
+# See https://tech.davis-hansson.com/p/make/
+SHELL := bash
+.ONESHELL:
+.SHELLFLAGS := -eu -o pipefail -c
+.DELETE_ON_ERROR:
+MAKEFLAGS += --warn-undefined-variables
+MAKEFLAGS += --no-builtin-rules
 
-define BROWSER_PYSCRIPT
-import os, webbrowser, sys
+ifeq ($(origin .RECIPEPREFIX), undefined)
+  $(error This Make does not support .RECIPEPREFIX. Please use GNU Make 4.0 or later)
+endif
+.RECIPEPREFIX = >
 
-try:
-	from urllib import pathname2url
-except:
-	from urllib.request import pathname2url
+##############################################
 
-webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
-endef
-export BROWSER_PYSCRIPT
+PYTHON_VERSION = python3
+VENV_NAME := venv
+VENV_BIN := $(VENV_NAME)/bin
+ACTIVATE = $(VENV_BIN)/activate
+PYTHON = $(VENV_BIN)/python3
 
-define PRINT_HELP_PYSCRIPT
-import re, sys
+$(PYTHON):
+> test -d $(VENV_NAME) || $(PYTHON_VERSION) -m venv --upgrade-deps $(VENV_NAME)
 
-for line in sys.stdin:
-	match = re.match(r'^([a-zA-Z_-]+):.*?## (.*)$$', line)
-	if match:
-		target, help = match.groups()
-		print("%-20s %s" % (target, help))
-endef
-export PRINT_HELP_PYSCRIPT
+venv: $(PYTHON)
 
-BROWSER := python -c "$$BROWSER_PYSCRIPT"
+install: venv requirements.txt setup.py
+> $(PYTHON) -m pip install -r requirements.txt
+> $(VENV_BIN)/pre-commit install
 
-help:
-	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
+lint:
+> $(PYTHON) -m flake8 --count --show-source --statistics aics_pipeline_uploaders
+.PHONY: lint
 
-clean:  ## clean all build, python, and testing files
-	rm -fr build/
-	rm -fr dist/
-	rm -fr .eggs/
-	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '*.egg' -exec rm -f {} +
-	find . -name '*.pyc' -exec rm -f {} +
-	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
-	find . -name '__pycache__' -exec rm -fr {} +
-	rm -fr .tox/
-	rm -fr .coverage
-	rm -fr coverage.xml
-	rm -fr htmlcov/
-	rm -fr .pytest_cache
+type-check:
+> $(PYTHON) -m mypy --ignore-missing-imports aics_pipeline_uploaders
+.PHONY: type-check
 
-build: ## run tox / run tests and lint
-	tox
+fmt:
+> $(PYTHON) -m black aics_pipeline_uploaders
+.PHONY: fmt
 
-gen-docs: ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/pipeline_uploaders*.rst
-	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ pipeline_uploaders **/tests/
-	$(MAKE) -C docs html
+import-sort:
+> $(PYTHON) -m isort aics_pipeline_uploaders
+.PHONY: import-sort
 
-docs: ## generate Sphinx HTML documentation, including API docs, and serve to browser
-	make gen-docs
-	$(BROWSER) docs/_build/html/index.html
+test:
+> $(PYTHON) -m pytest aics_pipeline_uploaders/tests/
+.PHONY: test
+
+test-exclude-slow:
+> $(PYTHON) -m pytest -m "not slow"
+.PHONY: test-exclude-slow
+
+clean:  # Clear proj dir of all .gitignored files
+> git clean -Xfd -e "!.vscode"
+.PHONY: clean
+
+docs:
+> source $(ACTIVATE) && sphinx-apidoc -f -o docs aics_pipeline_uploaders aics_pipeline_uploaders/tests
+> source $(ACTIVATE) && sphinx-build -b html docs docs/build
+.PHONY: docs
+
+docs-serve:
+> $(PYTHON) -m http.server --directory docs/build 8080
+.PHONY: docs-serve
+
+build: install
+> rm -rf dist/
+> $(PYTHON) -m build
+.PHONY: build
+
+publish: build
+> $(PYTHON) -m twine upload --verbose -r release-local dist/*
+.PHONY: publish
+
+publish-snapshot: build
+> $(PYTHON) -m twine upload --verbose -r snapshot-local dist/*
+.PHONY: publish-snapshot
+
+bumpversion-release:
+> $(PYTHON) -m bumpversion --list release
+.PHONY: bumpversion-release
+
+bumpversion-major:
+> $(PYTHON) -m bumpversion --list major
+.PHONY: bumpversion-major
+
+bumpversion-minor:
+> $(PYTHON) -m bumpversion --list minor
+.PHONY: bumpversion-minor
+
+bumpversion-patch:
+> $(PYTHON) -m bumpversion --list patch
+.PHONY: bumpversion-patch
+
+bumpversion-dev:
+> $(PYTHON) -m bumpversion --list devbuild
+.PHONY: bumpversion-dev
