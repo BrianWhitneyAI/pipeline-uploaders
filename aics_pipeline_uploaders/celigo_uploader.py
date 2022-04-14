@@ -6,7 +6,7 @@ from .fms_uploader import FMSUploader
 
 
 class CeligoUploader(FMSUploader):
-    def __init__(self, file_path: str, env: str = "stg"):
+    def __init__(self, file_path: str, file_type: str, env: str = "stg"):
 
         row_code = {
             "A": 1,
@@ -19,7 +19,7 @@ class CeligoUploader(FMSUploader):
             "H": 8,
         }
         self.env = env
-        self.file_type = "TIFF Image"
+        self.file_type = file_type
         self.file_path = Path(file_path)
 
         file_name = self.file_path.name
