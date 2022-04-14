@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from .celigo_uploader import CeligoUploader
+from .emt_uploader import EMTUploader
+
+# from .drug_uploader import DrugUploader
+from .fms_uploader import FMSUploader
+
 """Top-level package for pipeline_uploaders."""
 
 __author__ = "Brian Whitney"
@@ -11,10 +17,3 @@ __version__ = "0.0.0"
 
 def get_module_version():
     return __version__
-
-
-from .celigo_uploader import CeligoUploader
-
-# from .drug_uploader import DrugUploader
-from .fms_uploader import FMSUploader
-from .emt_uploader import EMTUploader

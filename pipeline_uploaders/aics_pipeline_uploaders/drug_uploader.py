@@ -4,22 +4,20 @@ from pathlib import Path
 from fms_uploader import FMSUploader
 
 """
-Starting code base for EMT Uploader 
+Starting code base for EMT Uploader
 
-    Goals: Upload EMT files to FMS 
+    Goals: Upload EMT files to FMS
 
         7 block experiments (.czi)
 
         Possibly upload combined file (.czi or .ome.tiff)
 
 
-        NOTE: Super class for uploaders 
+        NOTE: Super class for uploaders
         NOTE: look into helper constructor
 
 
 """
-
-
 class DrugUploader(FMSUploader):
     def __init__(self, file_path: str, env="stg"):
         self.file_path = Path(file_path)
