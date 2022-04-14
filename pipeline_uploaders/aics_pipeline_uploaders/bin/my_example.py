@@ -11,7 +11,10 @@ import logging
 import sys
 import traceback
 
-from pipeline_uploaders import Example, get_module_version
+from pipeline_uploaders import (
+    Example,
+    get_module_version,
+)
 
 ###############################################################################
 

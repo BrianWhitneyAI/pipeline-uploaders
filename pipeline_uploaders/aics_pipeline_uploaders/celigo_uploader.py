@@ -20,9 +20,9 @@ class CeligoUploader(FMSUploader):
         }
         self.env = env
         self.file_type = "TIFF Image"
-        self.file_path = file_path
+        self.file_path = Path(file_path)
 
-        file_name = Path(file_path).name
+        file_name = self.file_path.name
 
         raw_metadata = file_name.split("_")
 
@@ -51,7 +51,7 @@ class CeligoUploader(FMSUploader):
         self.metadata = builder.build()
 
         self.metadata["microscopy"] = {
-            "well_id": self.well_id, # current database criteria does not allow for our well_id's 3500004923
+            "well_id": self.well_id,  # current database criteria does not allow for our well_id's 3500004923
             "plate_barcode": self.plate_barcode,
             "celigo": {
                 "scan_time": self.scan_time,

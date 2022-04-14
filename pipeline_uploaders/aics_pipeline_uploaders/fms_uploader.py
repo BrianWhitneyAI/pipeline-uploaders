@@ -1,13 +1,15 @@
 import os
-import xml.etree.ElementTree as ET
 from pathlib import Path
-from xml.etree.ElementTree import tostring as xml_to_string
+import xml.etree.ElementTree as ET
+from xml.etree.ElementTree import (
+    tostring as xml_to_string,
+)
 
-import lkaccess.contexts
-import requests
 from aicsfiles import FileManagementSystem
 from aicsimageio import AICSImage
 from lkaccess import LabKey, QueryFilter
+import lkaccess.contexts
+import requests
 
 """
 This is a superclass for uploading ot FMS
@@ -19,14 +21,14 @@ OPTICAL_CONTROL_DIR = (
 )
 
 OBJECTIVE_MAPPING = {
-    20: "20x/0.80",
-    40: "40x/1.2W",
-    63: "63x/1.2W",
-    100: "100x/1.25W",
-    101: "100x/1.46Oil",  # We dont use Oil currently
-    44.83: "44.83x/1.0W",
-    5: "5x/0.12",
-    10: "10x/0.45",
+    "20": "20x/0.80",
+    "40": "40x/1.2W",
+    "63": "63x/1.2W",
+    "100": "100x/1.25W",
+    "101": "100x/1.46Oil",  # We dont use Oil currently
+    "44.83": "44.83x/1.0W",
+    "5": "5x/0.12",
+    "10": "10x/0.45",
 }
 
 SYSTEM_MAPPING = {
@@ -65,20 +67,20 @@ class FMSUploader:
         return "Upload Failed"
 
     @staticmethod
-    def get_labkey_metadata(barcode: str, env="stg"):
+    def get_labkey_metadata(barcode: int, env="stg"):
 
         if env == "prod":
             lk = LabKey(server_context=lkaccess.contexts.PROD)
         elif env == "stg":
             lk = LabKey(server_context=lkaccess.contexts.STAGE)
         else:
-            raise Exception(f"Not a valid env. Must be [prod, stg]")
+            raise Exception("Not a valid env. Must be [prod, stg]")
 
         my_rows = lk.select_rows_as_list(
             schema_name="microscopy",
             query_name="Plate",
             filter_array=[
-                QueryFilter("Barcode", barcode),
+                QueryFilter("Barcode", str(barcode)),
             ],
         )
 
@@ -94,7 +96,9 @@ class FMSUploader:
         return r.json()
 
     @staticmethod
-    def get_well_id(metadata_block: dict, row: int, col: int):  # TODO: Add typing to f
+    def get_well_id(
+        metadata_block: dict, row: int, col: int
+    ) -> int:  # TODO: Add typing to f
 
         wells = metadata_block["wells"]
 
@@ -106,10 +110,10 @@ class FMSUploader:
             raise Exception(
                 f"The well at row {row} column {col} does not exist in labkey"
             )
+        return well_id
 
     @staticmethod
-    def get_imaging_date(file_path):  # TODO: move this to FMSUploader
-        # path = './ImageDocument/Metadata/Information/Image/AcquisitionDateAndTime'
+    def get_imaging_date(file_path) -> str:
         file_img = AICSImage(file_path)
 
         with open("metadata.czi.xml", "w") as f:  # TODO: Make this not output a file
@@ -118,8 +122,9 @@ class FMSUploader:
 
         imaging_date = tree.findall(".//AcquisitionDateAndTime")[0].text
         os.remove("metadata.czi.xml")
-        return imaging_date.split("T")[0]
+        return str(imaging_date).split("T")[0]
 
+    @staticmethod
     def get_QC_daily_path(
         system: str,  # Options are ZSD0, ZSD1, ZSD2, ZSD3, 3i0, 3i1
         objective: int,  # Options are 100, 63, 20
@@ -148,29 +153,36 @@ class FMSUploader:
             return Path(opt_cont_files[0])
         elif len(opt_cont_files) == 0:
             raise Exception(
-                f"No files found with system: {system}, objective: {objective}, date: {date}"
+                f"No files found with system:\n"
+                f" {system},\n"
+                f" objective: {objective},\n"
+                f" date: {date}"
             )
         else:
             print(
-                f"Multiple files found with system: {system}, objective: {objective}, date: {date}. Printing all paths, and outputting the first found"
+                f"Multiple files found with system: {system},\n"
+                f"objective: {objective},\n"
+                f"date: {date}.\n"
+                f"Printing all paths, and outputting the first found"
             )
             for i in opt_cont_files:
                 print(i)
             return Path(opt_cont_files[0])
 
-    def get_objective(file_path):
+    @staticmethod
+    def get_objective(file_path) -> int:
         # path = './ImageDocument/Metadata/Information/Image/AcquisitionDateAndTime'
         file_img = AICSImage(file_path)
 
         with open("metadata.czi.xml", "w") as f:  # TODO: Make this not output a file
             f.write(xml_to_string(file_img.metadata, encoding="unicode"))
-        tree = ET.parse("metadata.czi.xml")
-
+        # tree = ET.parse("metadata.czi.xml")
         # objective = int(tree.findall(".//TotalMagnification")[0].text) # TODO: This is not quite the right path
         os.remove("metadata.czi.xml")
         return 63
 
-    def get_system(file_path):
+    @staticmethod
+    def get_system(file_path) -> str:
         # path = './ImageDocument/Metadata/Information/Image/AcquisitionDateAndTime'
         file_img = AICSImage(file_path)
 
@@ -183,10 +195,12 @@ class FMSUploader:
         ].text  # TODO: This is not quite the right path
         # Delete file
         os.remove("metadata.czi.xml")
-        return system
+        return str(system)
 
-    def objective_mapping(objective: int):
-        return OBJECTIVE_MAPPING[objective]
+    @staticmethod
+    def objective_mapping(objective: int) -> str:
+        return OBJECTIVE_MAPPING[str(objective)]
 
-    def system_mapping(objective: int):
-        return SYSTEM_MAPPING[objective]
+    @staticmethod
+    def system_mapping(objective: str) -> str:
+        return SYSTEM_MAPPING[str(objective)]

@@ -1,8 +1,10 @@
 import os
-import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import List
-from xml.etree.ElementTree import tostring as xml_to_string
+import xml.etree.ElementTree as ET
+from xml.etree.ElementTree import (
+    tostring as xml_to_string,
+)
 
 from aicsfiles import FileManagementSystem
 from aicsimageio import AICSImage
@@ -10,16 +12,16 @@ from aicsimageio import AICSImage
 from .fms_uploader import FMSUploader
 
 """
-Starting code base for EMT Uploader 
+Starting code base for EMT Uploader
 
-    Goals: Upload EMT files to FMS 
+    Goals: Upload EMT files to FMS
 
         7 block experiments (.czi)
 
         Possibly upload combined file (.czi or .ome.tiff)
 
 
-        NOTE: Super class for uploaders 
+        NOTE: Super class for uploaders
         NOTE: look into helper constructor
 """
 
@@ -29,7 +31,7 @@ class EMTUploader:
 
         BLOCK = "AcquisitionBlock"
         self.env = env
-        self.barcode = str(
+        self.barcode = int(
             Path(dir_path).name.split("_")[0]
         )  # this is oversimplified at moment
         self.files = []  # This is where files + metadata go
@@ -174,7 +176,7 @@ class EMTUploader:
 
     @staticmethod
     def block_metadata_formatter(
-        barcode: str,
+        barcode: int,
         filename: str,
         file_type: str,
         well_ids: List[int],
@@ -185,7 +187,6 @@ class EMTUploader:
         timepoint: int,
     ):
 
-        r = FMSUploader.get_labkey_metadata(barcode)
         fms = FileManagementSystem(env="stg")
         builder = fms.create_file_metadata_builder()
         builder.add_annotation("Well", well_ids).add_annotation(
@@ -217,7 +218,7 @@ class EMTUploader:
 
     @staticmethod
     def wellscan_metadata_formatter(
-        barcode: str,
+        barcode: int,
         filename: str,
         file_type: str,
         well_ids: List[int],
@@ -227,7 +228,6 @@ class EMTUploader:
         optical_control_id: str,
     ):
 
-        r = FMSUploader.get_labkey_metadata(barcode)
         fms = FileManagementSystem(env="stg")
         builder = fms.create_file_metadata_builder()
         builder.add_annotation("Well", well_ids).add_annotation(
@@ -257,7 +257,7 @@ class EMTUploader:
 
     @staticmethod
     def czmbi_metadata_formatter(
-        barcode: str,
+        barcode: int,
         filename: str,
         file_type: str,
         well_ids: List[int],
@@ -265,7 +265,7 @@ class EMTUploader:
         imaging_date: str,
         scene_map: List[str],
     ):
-        r = FMSUploader.get_labkey_metadata(barcode)
+
         fms = FileManagementSystem(env="stg")
         builder = fms.create_file_metadata_builder()
         builder.add_annotation("Well", well_ids).add_annotation(
@@ -295,7 +295,7 @@ class EMTUploader:
 
     @staticmethod
     def czexp_metadata_formatter(
-        barcode: str,
+        barcode: int,
         filename: str,
         file_type: str,
         well_ids: List[int],
@@ -304,7 +304,6 @@ class EMTUploader:
         scene_map: List[str],
     ):
 
-        r = FMSUploader.get_labkey_metadata(barcode)
         fms = FileManagementSystem(env="stg")
         builder = fms.create_file_metadata_builder()
         builder.add_annotation("Well", well_ids).add_annotation(
