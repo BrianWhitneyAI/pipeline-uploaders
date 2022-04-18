@@ -55,7 +55,7 @@ setup(
     keywords="aics_pipeline_uploaders",
     name="aics_pipeline_uploaders",
     packages=find_packages(exclude=["tests", "*.tests", "*.tests.*"]),
-    python_requires=">=3.9",  # This is driven by aicsimageio constraints
+    python_requires=">=3.8",  # This is driven by aicsimageio constraints
     url="https://github.com/BrianWhitneyAI/aics_pipeline_uploaders",
     # Do not edit this string manually, always use bumpversion
     # Details in CONTRIBUTING.rst
