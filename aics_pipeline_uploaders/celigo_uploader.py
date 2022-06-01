@@ -29,7 +29,7 @@ class CeligoUploader(FMSUploader):
         self.plate_barcode = int(raw_metadata[0])
 
         ts = raw_metadata[2].split("-")
-        self.scan_date = ts[2] + "-" + ts[1] + "-" + ts[0]
+        self.scan_date = ts[2] + "-" + ts[0] + "-" + ts[1]
         self.scan_time = ts[3] + ":" + ts[4] + ":" + ts[5] + " " + ts[6]
 
         self.row = int(row_code[raw_metadata[4][0]])
