@@ -101,7 +101,7 @@ class FMSUploader:
     ) -> int:  # TODO: Add typing to f
 
         wells = metadata_block["wells"]
-
+        well_id = 10
         for well in wells:
             if (well["row"] == row) and (well["col"] == col):
                 well_id = well["wellId"]
