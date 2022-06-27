@@ -52,7 +52,7 @@ class FMSUploader:
         fms = FileManagementSystem(env=self.env)
 
         run_count = 0
-        while run_count < 5:
+        while run_count < 3:
             try:
                 fms_file = fms.upload_file(
                     self.file_path,
@@ -61,7 +61,7 @@ class FMSUploader:
                 )
                 return fms_file.id
             except requests.exceptions.ReadTimeout:
-                print("")
+                print("ReadTimeout, retrying")
                 run_count = run_count + 1
                 continue
         return "Upload Failed"
