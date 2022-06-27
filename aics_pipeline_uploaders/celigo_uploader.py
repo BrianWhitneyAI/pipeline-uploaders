@@ -33,7 +33,7 @@ class CeligoUploader(FMSUploader):
         self.scan_date = ts[2] + "-" + ts[0] + "-" + ts[1]
         self.scan_time = ts[3] + ":" + ts[4] + ":" + ts[5] + " " + ts[6]
         hours = int(ts[3])
-        if ts[6] == "AM":
+        if ts[6] == "PM":
             hours = hours + 12
         self.datetime = datetime(
             year=int(ts[2]),
