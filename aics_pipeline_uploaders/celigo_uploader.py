@@ -5,6 +5,8 @@ from aicsfiles import FileManagementSystem
 
 from .fms_uploader import FMSUploader
 
+# Example file name 3500002920_Scan_4-19-2019-6-56-27-AM_Well_G3_Ch1_-1um
+
 
 class CeligoUploader(FMSUploader):
     def __init__(self, file_path: str, file_type: str, env: str = "stg"):
@@ -30,11 +32,19 @@ class CeligoUploader(FMSUploader):
         self.plate_barcode = int(raw_metadata[0])
 
         ts = raw_metadata[2].split("-")
+
+        if len(ts[0]) < 2:
+            ts[0] = "0" + ts[0]
+
+        if len(ts[1]) < 2:
+            ts[1] = "0" + ts[1]
+
         self.scan_date = ts[2] + "-" + ts[0] + "-" + ts[1]
         self.scan_time = ts[3] + ":" + ts[4] + ":" + ts[5] + " " + ts[6]
         hours = int(ts[3])
         if ts[6] == "PM":
             hours = hours + 12
+
         self.datetime = datetime(
             year=int(ts[2]),
             month=int(ts[0]),
@@ -55,7 +65,9 @@ class CeligoUploader(FMSUploader):
         builder = fms.create_file_metadata_builder()
         builder.add_annotation("Well", self.well_id).add_annotation(
             "Plate Barcode", self.plate_barcode
-        ).add_annotation("Celigo Scan Time", self.scan_time).add_annotation(
+        ).add_annotation(
+            "Celigo Scan Time", self.datetime.isoformat(sep="T", timespec="auto")
+        ).add_annotation(
             "Celigo Scan Date", self.scan_date
         )
 
