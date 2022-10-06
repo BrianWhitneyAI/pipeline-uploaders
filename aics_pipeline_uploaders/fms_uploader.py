@@ -76,15 +76,19 @@ class FMSUploader:
         else:
             raise Exception("Not a valid env. Must be [prod, stg]")
 
-        my_rows = lk.select_rows_as_list(
-            schema_name="microscopy",
-            query_name="Plate",
-            filter_array=[
-                QueryFilter("Barcode", str(barcode)),
-            ],
-        )
+        try:
+            my_rows = lk.select_rows_as_list(
+                schema_name="microscopy",
+                query_name="Plate",
+                filter_array=[
+                    QueryFilter("Barcode", str(barcode)),
+                ],
+            )
 
-        plate_ID = my_rows[0]["PlateId"]
+            plate_ID = my_rows[0]["PlateId"]
+
+        except IndexError:
+            raise Exception("Barcode:" + str(barcode) + "is not within " + env)
 
         r = requests.get(
             f"http://aics.corp.alleninstitute.org/metadata-management-service/1.0/plate/{plate_ID}",
