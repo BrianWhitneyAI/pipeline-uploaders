@@ -88,7 +88,7 @@ class FMSUploader:
             plate_ID = my_rows[0]["PlateId"]
 
         except IndexError:
-            raise Exception("Barcode:" + str(barcode) + "is not within " + env)
+            raise Exception("Barcode: " + str(barcode) + " is not within " + env)
 
         r = requests.get(
             f"http://aics.corp.alleninstitute.org/metadata-management-service/1.0/plate/{plate_ID}",
