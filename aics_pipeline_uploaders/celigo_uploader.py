@@ -21,6 +21,7 @@ class CeligoUploader(FMSUploader):
             "G": 7,
             "H": 8,
         }
+
         self.env = env
         self.file_type = file_type
         self.file_path = Path(file_path)
@@ -41,7 +42,9 @@ class CeligoUploader(FMSUploader):
 
         self.scan_date = ts[2] + "-" + ts[0] + "-" + ts[1]
         self.scan_time = ts[3] + ":" + ts[4] + ":" + ts[5] + " " + ts[6]
+
         hours = int(ts[3])
+
         if ts[6] == "PM":
             hours = hours + 12
 
@@ -53,11 +56,12 @@ class CeligoUploader(FMSUploader):
             minute=int(ts[4]),
             second=int(ts[5]),
         )
+
         self.row = int(row_code[raw_metadata[4][0]])
         self.col = int(raw_metadata[4][1:])
 
         # Establishing a connection to labkey
-        r = self.get_labkey_metadata(self.plate_barcode)
+        r = self.get_labkey_metadata(barcode=self.plate_barcode, env=env)
         self.well_id = FMSUploader.get_well_id(r, self.row, self.col)
         self.well = raw_metadata[4]
 
