@@ -1,5 +1,7 @@
+import json
 import os
 from pathlib import Path
+import subprocess
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import (
     tostring as xml_to_string,
@@ -10,8 +12,6 @@ from aicsimageio import AICSImage
 from lkaccess import LabKey, QueryFilter
 import lkaccess.contexts
 import requests
-import subprocess
-import json
 
 """
 This is a superclass for uploading ot FMS
@@ -92,15 +92,21 @@ class FMSUploader:
         except IndexError:
             raise Exception("Barcode:" + str(barcode) + "is not within " + env)
 
+        # # Old reqest method
         # r = requests.get(
         #     f"http://aics.corp.alleninstitute.org/metadata-management-service/1.0/plate/{plate_ID}",
         #     headers={
         #         "x-user-id": "brian.whitney"
         #     },  # this should change to a generic user
         # )
-        
-        r = subprocess.run(args=['curl', f'http://aics.corp.alleninstitute.org/metadata-management-service/1.0/plate/{plate_ID}'],
-                        capture_output=True)
+
+        r = subprocess.run(
+            args=[
+                "curl",
+                f"http://aics.corp.alleninstitute.org/metadata-management-service/1.0/plate/{plate_ID}",
+            ],
+            capture_output=True,
+        )
 
         return json.loads(r.stdout)
 
