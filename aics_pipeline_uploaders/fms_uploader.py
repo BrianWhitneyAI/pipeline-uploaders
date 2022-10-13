@@ -90,7 +90,7 @@ class FMSUploader:
             plate_ID = my_rows[0]["PlateId"]
 
         except IndexError:
-            raise Exception("Barcode:" + str(barcode) + "is not within " + env)
+            raise Exception("Barcode: " + str(barcode) + " is not within " + env)
 
         # # Old reqest method
         # r = requests.get(
