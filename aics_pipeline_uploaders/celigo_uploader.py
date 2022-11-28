@@ -85,6 +85,3 @@ class CeligoUploader(FMSUploader):
                 "scan_date": self.scan_date,
             },
         }
-
-    def upload(self):
-        return super().upload()

@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from pathlib import Path
 import subprocess
@@ -56,17 +57,21 @@ class FMSUploader:
         run_count = 0
         while run_count < 3:
             try:
-                fms_file = fms.upload_file(
-                    self.file_path,
+                fms_file = fms.upload_v2_file(
+                    file_reference=self.file_path,
                     file_type=self.file_type,
                     metadata=self.metadata,
                 )
-                return fms_file.id
+                self.fms_ID = fms_file.id
+                run_count = 3
             except requests.exceptions.ReadTimeout:
                 print("ReadTimeout, retrying")
                 run_count = run_count + 1
                 continue
-        return "Upload Failed"
+            except Exception as error:
+                run_count = 3
+                logging.exception("An exception was thrown!")
+                raise (error)
 
     @staticmethod
     def get_labkey_metadata(barcode: int, env="stg"):
