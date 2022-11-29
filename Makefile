@@ -24,16 +24,21 @@ $(PYTHON):
 
 venv: $(PYTHON)
 
-install: venv requirements.txt setup.py
-> $(PYTHON) -m pip install -r requirements.txt
+install: venv
+> $(PYTHON) -m pip install --index-url='https://artifactory.corp.alleninstitute.org/artifactory/api/pypi/pypi-virtual/simple' --extra-index-url='https://artifactory.corp.alleninstitute.org/artifactory/api/pypi/pypi-snapshot-local/simple' . 
+.PHONY: install
+
+install-dev: venv install
+> $(PYTHON) -m pip install .[dev]
 > $(VENV_BIN)/pre-commit install
+.PHONY: install-dev
 
 lint:
 > $(PYTHON) -m flake8 --count --show-source --statistics aics_pipeline_uploaders
 .PHONY: lint
 
 type-check:
-> $(PYTHON) -m mypy --ignore-missing-imports aics_pipeline_uploaders
+> $(PYTHON) -m mypy --ignore-missing-imports  aics_pipeline_uploaders
 .PHONY: type-check
 
 fmt:
@@ -66,6 +71,7 @@ docs-serve:
 .PHONY: docs-serve
 
 build: install
+> rm -rf build/
 > rm -rf dist/
 > $(PYTHON) -m build
 .PHONY: build
