@@ -70,3 +70,5 @@ class CeligoUploader(FMSUploader):
         ).add_annotation(
             "Celigo Scan Date", self.scan_date
         )
+
+        self.metadata = builder.build()
