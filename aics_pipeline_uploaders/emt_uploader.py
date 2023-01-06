@@ -372,4 +372,5 @@ class EMTUploader:
 
     def upload(self):
         for file in self.files:
-            print(file.file_path.name + " File id: " + file.upload())
+            file.upload()
+            print(file.file_path.name)

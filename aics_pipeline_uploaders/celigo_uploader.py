@@ -2,52 +2,44 @@ from datetime import datetime
 from pathlib import Path
 
 from aicsfiles import FileManagementSystem
+import requests
 
 from .fms_uploader import FMSUploader
 
 # Example file name 3500002920_Scan_4-19-2019-6-56-27-AM_Well_G3_Ch1_-1um
 
+STG_ENDPOINT = "http://stg-aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode="
+PROD_ENDPOINT = "http://aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode="
+
 
 class CeligoUploader(FMSUploader):
     def __init__(self, file_path: str, file_type: str, env: str = "stg"):
 
-        row_code = {
-            "A": 1,
-            "B": 2,
-            "C": 3,
-            "D": 4,
-            "E": 5,
-            "F": 6,
-            "G": 7,
-            "H": 8,
-        }
-
         self.env = env
+        if env == "prod":
+            endpoint = PROD_ENDPOINT
+        else:
+            endpoint = STG_ENDPOINT
+
         self.file_type = file_type
         self.file_path = Path(file_path)
-
         file_name = self.file_path.name
-
         raw_metadata = file_name.split("_")
 
+        # Get barcode from filename
         self.plate_barcode = int(raw_metadata[0])
 
+        # Build time based metadata from file name
         ts = raw_metadata[2].split("-")
-
         if len(ts[0]) < 2:
             ts[0] = "0" + ts[0]
-
         if len(ts[1]) < 2:
             ts[1] = "0" + ts[1]
-
         self.scan_date = ts[2] + "-" + ts[0] + "-" + ts[1]
         self.scan_time = ts[3] + ":" + ts[4] + ":" + ts[5] + " " + ts[6]
-
         hours = int(ts[3])
-
         if ts[6] == "PM":
             hours = hours + 12
-
         self.datetime = datetime(
             year=int(ts[2]),
             month=int(ts[0]),
@@ -57,14 +49,29 @@ class CeligoUploader(FMSUploader):
             second=int(ts[5]),
         )
 
-        self.row = int(row_code[raw_metadata[4][0]])
-        self.col = int(raw_metadata[4][1:])
+        # Get Plate Metadata from MMS
+        try:
+            response = requests.get(
+                f"{endpoint}{self.plate_barcode}",
+                headers={"Accept": "application/json"},
+            )
+            plate_metadata = response.json()["data"]
+        except KeyError:
+            raise ValueError(
+                f"Plate: {self.plate_barcode} is not in environment {self.env}"
+            )
 
-        # Establishing a connection to labkey
-        r = self.get_labkey_metadata(barcode=self.plate_barcode, env=env)
-        self.well_id = FMSUploader.get_well_id(r, self.row, self.col)
-        self.well = raw_metadata[4]
+        # Pull Specific well ID, if file has multiple sessions raise ValueError
+        if len(plate_metadata) > 1:
+            raise ValueError(
+                f"Barcode:{self.plate_barcode} has more than one imaging date."
+            )
+        else:
+            self.well_id = plate_metadata[0]["wellNameLookup"][raw_metadata[4]][
+                "wellId"
+            ]
 
+        # Build fms object
         fms = FileManagementSystem()
         builder = fms.create_file_metadata_builder()
         builder.add_annotation("Well", self.well_id).add_annotation(
@@ -76,12 +83,3 @@ class CeligoUploader(FMSUploader):
         )
 
         self.metadata = builder.build()
-
-        self.metadata["microscopy"] = {
-            "well_id": self.well_id,  # current database criteria does not allow for our well_id's 3500004923
-            "plate_barcode": self.plate_barcode,
-            "celigo": {
-                "scan_time": self.scan_time,
-                "scan_date": self.scan_date,
-            },
-        }
