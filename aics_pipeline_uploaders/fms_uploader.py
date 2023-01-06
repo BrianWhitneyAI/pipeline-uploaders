@@ -141,7 +141,7 @@ class FMSUploader:
         tree = ET.parse("metadata.czi.xml")
 
         imaging_date = tree.findall(".//AcquisitionDateAndTime")[0].text
-        # os.remove("metadata.czi.xml")
+        os.remove("metadata.czi.xml")
         return str(imaging_date).split("T")[0]
 
     @staticmethod
