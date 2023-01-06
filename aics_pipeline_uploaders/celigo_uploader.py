@@ -8,13 +8,19 @@ from .fms_uploader import FMSUploader
 
 # Example file name 3500002920_Scan_4-19-2019-6-56-27-AM_Well_G3_Ch1_-1um
 
-ENDPOINT = "http://aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode="
+STG_ENDPOINT = "http://stg-aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode="
+PROD_ENDPOINT = "http://aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode="
 
 
 class CeligoUploader(FMSUploader):
     def __init__(self, file_path: str, file_type: str, env: str = "stg"):
 
         self.env = env
+        if env == "prod":
+            endpoint = PROD_ENDPOINT
+        else:
+            endpoint = STG_ENDPOINT
+
         self.file_type = file_type
         self.file_path = Path(file_path)
         file_name = self.file_path.name
@@ -43,12 +49,17 @@ class CeligoUploader(FMSUploader):
             second=int(ts[5]),
         )
 
-        # Get Plate Metadata from Labkey
-        response = requests.get(
-            f"{ENDPOINT}{self.plate_barcode}",
-            headers={"Accept": "application/json"},
-        )
-        plate_metadata = response.json()["data"]
+        # Get Plate Metadata from MMS
+        try:
+            response = requests.get(
+                f"{endpoint}{self.plate_barcode}",
+                headers={"Accept": "application/json"},
+            )
+            plate_metadata = response.json()["data"]
+        except KeyError:
+            raise ValueError(
+                f"Plate: {self.plate_barcode} is not in environment {self.env}"
+            )
 
         # Pull Specific well ID, if file has multiple sessions raise ValueError
         if len(plate_metadata) > 1:
