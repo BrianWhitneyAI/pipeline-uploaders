@@ -24,6 +24,8 @@ class CeligoUtil():
     def lookup_well_id(self, plate_barcode, well_name):
         well_info_response = requests.get(ENV_SERVICE_MAP[self.env][SERVICE_MMS][MMS_RESOURCE_PLATE_INFO] + str(plate_barcode))
         well_info = well_info_response.json()
+        if len(well_info['data'][0]) > 1:
+            raise Exception(f"Barcode {plate_barcode} is used by more than one plate.")
         well_name_lookup = well_info['data'][0]['wellNameLookup']
 
         return well_name_lookup[well_name]['wellId']
