@@ -18,17 +18,17 @@ ENV_SERVICE_MAP = {
 
 class CeligoUtil():
 
-    def __init__(self, file_path: str, file_type: str, env: str = "stg"):
+    def __init__(self, env: str = "stg"):
         self.env = env
 
-    def lookup_well_id(plate_barcode, well_name, env):
-        well_info_response = requests.get(ENV_SERVICE_MAP[env][SERVICE_MMS][MMS_RESOURCE_PLATE_INFO] + str(plate_barcode))
+    def lookup_well_id(self, plate_barcode, well_name):
+        well_info_response = requests.get(ENV_SERVICE_MAP[self.env][SERVICE_MMS][MMS_RESOURCE_PLATE_INFO] + str(plate_barcode))
         well_info = well_info_response.json()
         well_name_lookup = well_info['data'][0]['wellNameLookup']
 
         return well_name_lookup[well_name]['wellId']
 
-    def parse_filename(file_name):
+    def parse_filename(self, file_name):
         raw_metadata = file_name.split("_")
         plate_barcode = int(raw_metadata[0])
         well_name = raw_metadata[4]
