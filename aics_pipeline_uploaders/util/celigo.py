@@ -3,18 +3,21 @@ import requests
 
 SERVICE_MMS = "mms"
 MMS_RESOURCE_PLATE_INFO = "plate_info"
+MMS_STG_URL = 'http://stg-aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode='
+MMS_PROD_URL = 'http://aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode='
 ENV_SERVICE_MAP = {
     "stg": {
         SERVICE_MMS: {
-            MMS_RESOURCE_PLATE_INFO: 'http://stg-aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode='
+            MMS_RESOURCE_PLATE_INFO: MMS_STG_URL
         }
     },
     "prod": {
         SERVICE_MMS: {
-            MMS_RESOURCE_PLATE_INFO: 'http://aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode='
+            MMS_RESOURCE_PLATE_INFO: MMS_PROD_URL
         }
     }
 }
+
 
 class CeligoUtil():
 
@@ -22,7 +25,8 @@ class CeligoUtil():
         self.env = env
 
     def lookup_well_id(self, plate_barcode, well_name):
-        well_info_response = requests.get(ENV_SERVICE_MAP[self.env][SERVICE_MMS][MMS_RESOURCE_PLATE_INFO] + str(plate_barcode))
+        url = ENV_SERVICE_MAP[self.env][SERVICE_MMS][MMS_RESOURCE_PLATE_INFO] + str(plate_barcode)
+        well_info_response = requests.get(url)
         well_info = well_info_response.json()
         if len(well_info['data'][0]) > 1:
             raise Exception(f"Barcode {plate_barcode} is used by more than one plate.")
@@ -47,7 +51,8 @@ class CeligoUtil():
             second=int(scan_date_time_parts[5]),
         )
         # This is a bit ugly, but matches historical values
-        standardized_scan_date_time_parts = scan_date_time.isoformat(timespec='auto').split('T') 
+
+        standardized_scan_date_time_parts = scan_date_time.isoformat(timespec='auto').split('T')
         scan_time = standardized_scan_date_time_parts[1]
         scan_date = standardized_scan_date_time_parts[0]
 
