@@ -1,9 +1,5 @@
-from pathlib import Path
-
-from aicsfiles import FileManagementSystem
-
-from .fms_uploader import FMSUploader
-from .util.celigo import CeligoUtil
+from fms_uploader import FMSUploader
+from util.celigo import CeligoUtil
 
 # Example file name "3500001609_Scan_1-12-2018-6-03-16-AM_Well_F5_Ch1_-1um.tiff"
 
@@ -11,12 +7,11 @@ from .util.celigo import CeligoUtil
 class CeligoUploader(FMSUploader):
     def __init__(self, file_path: str, file_type: str, env: str = "stg"):
 
-        self.file_path = Path(file_path)
-        self.file_type = file_type
-        self.file_name = self.file_path.name
+        super().__init__(file_path, file_type, env)
 
         # Get Metadata from filename
-        util = CeligoUtil(env)
+        util = CeligoUtil(self.env)
+
         (
             self.plate_barcode,
             self.well_name,
@@ -25,9 +20,7 @@ class CeligoUploader(FMSUploader):
         ) = util.parse_filename(self.file_name)
         self.well_id = util.lookup_well_id(self.plate_barcode, self.well_name)
 
-        # Build fms object
-        fms = FileManagementSystem()
-        builder = fms.create_file_metadata_builder()
+        builder = self.fms.create_file_metadata_builder()
         builder.add_annotation("Well", self.well_id).add_annotation(
             "Plate Barcode", self.plate_barcode
         ).add_annotation("Celigo Scan Time", self.scan_timeutil).add_annotation(

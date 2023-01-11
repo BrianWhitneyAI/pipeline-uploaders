@@ -44,23 +44,25 @@ SYSTEM_MAPPING = {
 
 
 class FMSUploader:
-    def __init__(self, file_path: str, file_type: str, metadata: dict, env="stg"):
+    def __init__(
+        self, file_path: str, file_type: str, metadata: dict = None, env="stg"
+    ):
 
         self.env = env
         self.file_path = Path(file_path)
         self.file_type = file_type
         self.metadata = metadata
+        self.file_name = self.file_path.name
+        self.fms = FileManagementSystem.from_env(env=self.env)
 
     def upload(self):
-        fms = FileManagementSystem(env=self.env)
-
         run_count = 0
         while run_count < 3:
             try:
-                fms_file = fms.upload_v2_file(
+                fms_file = self.fms.upload_file(
                     file_reference=self.file_path,
                     file_type=self.file_type,
-                    metadata=self.metadata,
+                    annotations=self.metadata,
                 )
                 self.fms_ID = fms_file.id
                 run_count = 3
