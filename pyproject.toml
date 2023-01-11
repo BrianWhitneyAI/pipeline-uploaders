@@ -29,6 +29,7 @@ dev = [
     "numpy ~= 1.23.4",
     "pre-commit ~= 2.20.0",
     "pytest ~= 7.2.0",
+    "requests_mock ~= 1.10.0",
     "Sphinx ~= 5.3.0",
     "tifffile == 2022.10.10",
     "twine ~= 4.0.1",
