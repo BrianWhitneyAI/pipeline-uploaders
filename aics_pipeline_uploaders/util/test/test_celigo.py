@@ -60,7 +60,7 @@ def test_lookup_well_id_multiple_plates() -> None:
         }
         mock_request.get(mms_url, text=json.dumps(mms_resp))
         with pytest.raises(BarcodeException):
-            util.lookup_well_id("3500001609", "A5")
+            util.lookup_well_id("9999999999", "A5")
 
 
 def test_lookup_well_id_404() -> None:
@@ -69,7 +69,7 @@ def test_lookup_well_id_404() -> None:
     with requests_mock.Mocker() as mock_request:
         mms_url = "http://stg-aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode=9999999999"  # noqa: E501
         mock_request.get(mms_url, status_code=404)
-        assert None == util.lookup_well_id("3500001609", "A5")
+        assert None == util.lookup_well_id("9999999999", "A5")
 
 
 def test_lookup_well_id_500() -> None:
@@ -79,7 +79,7 @@ def test_lookup_well_id_500() -> None:
         mms_url = "http://stg-aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode=9999999999"  # noqa: E501
         mock_request.get(mms_url, status_code=500)
         with pytest.raises(MMSException):
-            util.lookup_well_id("3500001609", "A5")
+            util.lookup_well_id("9999999999", "A5")
 
 
 def test_lookup_well_id_success() -> None:
