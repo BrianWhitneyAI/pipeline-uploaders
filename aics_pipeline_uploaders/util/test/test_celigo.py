@@ -90,7 +90,7 @@ def test_lookup_well_id_500() -> None:
             util.lookup_well_id("3500001609", "A5")
 
 
-def test_lookup_well_id() -> None:
+def test_lookup_well_id_success() -> None:
     util = CeligoUtil('stg')
     mms_url = "http://stg-aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode=3500001609"  # noqa: E501
     mms_resp = {"data": [{
@@ -115,3 +115,32 @@ def test_lookup_well_id() -> None:
         mock_request.get(mms_url, text=json.dumps(mms_resp))
         well_id = util.lookup_well_id("3500001609", "A5")
         assert well_id == 101189
+
+        
+
+def test_lookup_well_id_no_well_name() -> None:
+    util = CeligoUtil('stg')
+    mms_url = "http://stg-aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode=3500001609"  # noqa: E501
+    mms_resp = {"data": [{
+                    "wellNameLookup": {
+                        "A6": {
+                            "wellId": 101190,
+                            "row": 0,
+                            "col": 5,
+                            "cellPopulations": [],
+                            "solutions": [],
+                        },
+                        "A5": {
+                            "wellId": 101189,
+                            "row": 0,
+                            "col": 4,
+                            "cellPopulations": [],
+                            "solutions": [],
+                        }
+                    }
+                }]}
+    with requests_mock.Mocker() as mock_request:
+        mock_request.get(mms_url, text=json.dumps(mms_resp))
+        well_id = util.lookup_well_id("3500001609", "A99")
+        assert well_id == None
+
