@@ -67,7 +67,7 @@ def test_lookup_well_id_404() -> None:
     util = CeligoUtil('stg')
 
     with requests_mock.Mocker() as mock_request:
-        mms_url = "http://stg-aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode=3500001609"  # noqa: E501
+        mms_url = "http://stg-aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode=9999999999"  # noqa: E501
         mock_request.get(mms_url, status_code=404)
         assert None == util.lookup_well_id("3500001609", "A5")
 
@@ -76,7 +76,7 @@ def test_lookup_well_id_500() -> None:
     util = CeligoUtil('stg')
 
     with requests_mock.Mocker() as mock_request:
-        mms_url = "http://stg-aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode=3500001609"  # noqa: E501
+        mms_url = "http://stg-aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode=9999999999"  # noqa: E501
         mock_request.get(mms_url, status_code=500)
         with pytest.raises(MMSException):
             util.lookup_well_id("3500001609", "A5")
@@ -116,18 +116,18 @@ def test_lookup_well_id_success() -> None:
 
 def test_lookup_well_id_no_well_name() -> None:
     util = CeligoUtil('stg')
-    mms_url = "http://stg-aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode=3500001609"  # noqa: E501
+    mms_url = "http://stg-aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode=9999999999"  # noqa: E501
     mms_resp = {"data": [{
                     "wellNameLookup": {
                         "A6": {
-                            "wellId": 101190,
+                            "wellId": 10,
                             "row": 0,
                             "col": 5,
                             "cellPopulations": [],
                             "solutions": [],
                         },
                         "A5": {
-                            "wellId": 101189,
+                            "wellId": 11,
                             "row": 0,
                             "col": 4,
                             "cellPopulations": [],
@@ -137,6 +137,6 @@ def test_lookup_well_id_no_well_name() -> None:
                 }]}
     with requests_mock.Mocker() as mock_request:
         mock_request.get(mms_url, text=json.dumps(mms_resp))
-        well_id = util.lookup_well_id("3500001609", "A99")
+        well_id = util.lookup_well_id("9999999999", "A99")
         assert well_id == None
 
