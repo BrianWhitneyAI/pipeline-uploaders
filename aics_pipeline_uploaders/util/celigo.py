@@ -23,7 +23,7 @@ class CeligoUtil:
         well_info_response = requests.get(url)
         well_info = well_info_response.json()
         if len(well_info["data"]) > 1:
-            raise Exception(f"Barcode {plate_barcode} is used by more than one plate.")
+            raise BarcodeException(f"Barcode {plate_barcode} is used by more than one plate.")
         well_name_lookup = well_info["data"][0]["wellNameLookup"]
 
         return well_name_lookup[well_name]["wellId"]
@@ -53,3 +53,6 @@ class CeligoUtil:
         scan_date = standardized_scan_date_time_parts[0]
 
         return plate_barcode, well_name, scan_date, scan_time
+
+class BarcodeException(Exception):
+    pass
