@@ -1,5 +1,6 @@
 import json
 import pytest
+from aics_pipeline_uploaders.util.celigo import BarcodeException
 import requests_mock
 
 from ...util import CeligoUtil
@@ -66,7 +67,7 @@ def test_lookup_well_id_raises() -> None:
                 }
             }]}
         mock_request.get(mms_url, text=json.dumps(mms_resp))
-        with pytest.raises(Exception):
+        with pytest.raises(BarcodeException):
             util.lookup_well_id("3500001609", "A5")
 
 
