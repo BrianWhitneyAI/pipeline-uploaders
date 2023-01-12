@@ -1,6 +1,6 @@
 import json
 import pytest
-from aics_pipeline_uploaders.util.celigo import BarcodeException
+from aics_pipeline_uploaders.util.celigo import BarcodeException, MMSException
 import requests_mock
 
 from ...util import CeligoUtil
@@ -16,7 +16,7 @@ def test_parse_filename() -> None:
     assert scan_time == '06:03:16'
 
 
-def test_lookup_well_id_raises() -> None:
+def test_lookup_well_id_multiple_plates() -> None:
     util = CeligoUtil('stg')
 
     with requests_mock.Mocker() as mock_request:
@@ -68,6 +68,25 @@ def test_lookup_well_id_raises() -> None:
             }]}
         mock_request.get(mms_url, text=json.dumps(mms_resp))
         with pytest.raises(BarcodeException):
+            util.lookup_well_id("3500001609", "A5")
+
+
+def test_lookup_well_id_404() -> None:
+    util = CeligoUtil('stg')
+
+    with requests_mock.Mocker() as mock_request:
+        mms_url = "http://stg-aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode=3500001609"  # noqa: E501
+        mock_request.get(mms_url, status_code=404)
+        assert None == util.lookup_well_id("3500001609", "A5")
+
+
+def test_lookup_well_id_500() -> None:
+    util = CeligoUtil('stg')
+
+    with requests_mock.Mocker() as mock_request:
+        mms_url = "http://stg-aics-api.corp.alleninstitute.org/metadata-management-service/1.0/plate/query?barcode=3500001609"  # noqa: E501
+        mock_request.get(mms_url, status_code=500)
+        with pytest.raises(MMSException):
             util.lookup_well_id("3500001609", "A5")
 
 
