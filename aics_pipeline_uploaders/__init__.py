@@ -5,6 +5,7 @@ from .emt_uploader import EMTUploader
 
 # from .drug_uploader import DrugUploader
 from .fms_uploader import FMSUploader
+from .util import CeligoUtil
 
 """Top-level package for pipeline_uploaders."""
 
