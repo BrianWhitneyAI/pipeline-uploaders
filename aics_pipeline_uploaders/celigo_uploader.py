@@ -1,5 +1,5 @@
-from fms_uploader import FMSUploader
-from util.celigo import CeligoUtil
+from .fms_uploader import FMSUploader
+from .util.celigo import CeligoUtil
 
 # Example file name "3500001609_Scan_1-12-2018-6-03-16-AM_Well_F5_Ch1_-1um.tiff"
 
