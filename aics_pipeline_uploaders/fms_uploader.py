@@ -3,6 +3,7 @@ import logging
 import os
 from pathlib import Path
 import subprocess
+from typing import Literal
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import (
     tostring as xml_to_string,
@@ -45,7 +46,11 @@ SYSTEM_MAPPING = {
 
 class FMSUploader:
     def __init__(
-        self, file_path: str, file_type: str, metadata: dict = None, env="stg"
+        self,
+        file_path: str,
+        file_type: str,
+        metadata: dict = None,
+        env: Literal["prod", "stg", "dev"] = "stg",
     ):
 
         self.env = env

@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import List
+from typing import List, Literal
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import (
     tostring as xml_to_string,
@@ -27,7 +27,7 @@ Starting code base for EMT Uploader
 
 
 class EMTUploader:
-    def __init__(self, dir_path: str, env="stg"):
+    def __init__(self, dir_path: str, env: Literal["prod", "stg", "dev"] = "stg"):
 
         BLOCK = "AcquisitionBlock"
         self.env = env
@@ -180,11 +180,11 @@ class EMTUploader:
         filename: str,
         file_type: str,
         well_ids: List[int],
-        env: str,
         imaging_date: str,
         scene_map: List[str],
         optical_control_id: str,
         timepoint: int,
+        env: Literal["prod", "stg", "dev"] = "stg",
     ):
 
         fms = FileManagementSystem(env="stg")
@@ -222,10 +222,10 @@ class EMTUploader:
         filename: str,
         file_type: str,
         well_ids: List[int],
-        env: str,
         imaging_date: str,
         scene_map: List[str],
         optical_control_id: str,
+        env: Literal["prod", "stg", "dev"] = "stg",
     ):
 
         fms = FileManagementSystem(env="stg")
@@ -261,9 +261,9 @@ class EMTUploader:
         filename: str,
         file_type: str,
         well_ids: List[int],
-        env: str,
         imaging_date: str,
         scene_map: List[str],
+        env: Literal["prod", "stg", "dev"] = "stg",
     ):
 
         fms = FileManagementSystem(env="stg")
@@ -299,9 +299,9 @@ class EMTUploader:
         filename: str,
         file_type: str,
         well_ids: List[int],
-        env: str,
         imaging_date: str,
         scene_map: List[str],
+        env: Literal["prod", "stg", "dev"] = "stg",
     ):
 
         fms = FileManagementSystem(env="stg")
