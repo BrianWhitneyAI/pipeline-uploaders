@@ -1,3 +1,5 @@
+from typing import Literal
+
 from .fms_uploader import FMSUploader
 from .util.celigo import CeligoUtil
 
@@ -5,9 +7,11 @@ from .util.celigo import CeligoUtil
 
 
 class CeligoUploader(FMSUploader):
-    def __init__(self, file_path: str, file_type: str, env: str = "stg"):
+    def __init__(
+        self, file_path: str, file_type: str, env: Literal["prod", "stg", "dev"] = "stg"
+    ):
 
-        super().__init__(file_path, file_type, env)
+        super().__init__(file_path=file_path, file_type=file_type, env=env)
 
         # Get Metadata from filename
         util = CeligoUtil(self.env)
