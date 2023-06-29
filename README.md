@@ -6,7 +6,7 @@
 
 This package contains resources for uploading pipeline data to FMS
 
-aics_pipeline_uploaders==1.1.0
+aics_pipeline_uploaders==1.2.0
 ---
 ## Features
 
