@@ -1,6 +1,6 @@
 [project]
 name = "aics_pipeline_uploaders"
-version = "1.1.0"  # Do not edit manually; managed by bumpversion
+version = "1.2.0"  # Do not edit manually; managed by bumpversion
 description = "This package contains resources for uploading pipeline data to FMS"
 authors = [
     {name = "AICS", email="!AICS_SW@alleninstitute.org"},
