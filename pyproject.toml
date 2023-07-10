@@ -44,9 +44,8 @@ documentation = "https://aics-int.github.io/aics_pipeline_uploaders"
 repository = "https://github.com/aics-int/aics_pipeline_uploaders"
 
 [build-system]
-# https://setuptools.pypa.io/en/latest/build_meta.html
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
 
 [project.scripts]
 
